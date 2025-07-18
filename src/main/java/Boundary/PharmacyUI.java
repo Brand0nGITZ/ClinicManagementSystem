@@ -5,6 +5,7 @@
 package Boundary;
 
 import ADT.MyArrayList;
+import Control.MedicineMaintenance;
 import Entity.Medicine;
 import java.util.Scanner;
 
@@ -13,8 +14,13 @@ import java.util.Scanner;
  * @author yapji
  */
 public class PharmacyUI {
-    private MyArrayList<Medicine> medicineList = new MyArrayList<>();
-    private Scanner scanner = new Scanner(System.in);
+    private final Scanner scanner = new Scanner(System.in);
+    private final MedicineMaintenance medControl;
+
+    public PharmacyUI() {
+        MyArrayList<Medicine> medicineList = new MyArrayList<>();
+        this.medControl = new MedicineMaintenance(medicineList);
+    }
 
     public void run() {
         int choice;
@@ -26,10 +32,10 @@ public class PharmacyUI {
             System.out.println("4. Sort Medicines by Stock (Descending)");
             System.out.println("5. Dispense Medicine (Reduce Stock)");
             System.out.println("6. Remove Medicine");
+            System.out.println("7. Low Stock Report");
             System.out.println("0. Exit");
             System.out.print("Enter choice: ");
-            choice = scanner.nextInt();
-            scanner.nextLine(); // consume newline
+            choice = scanner.nextInt(); scanner.nextLine();
 
             switch (choice) {
                 case 1 -> addMedicine();
@@ -38,8 +44,9 @@ public class PharmacyUI {
                 case 4 -> sortMedicines();
                 case 5 -> dispenseMedicine();
                 case 6 -> removeMedicine();
+                case 7 -> lowStockReport();
                 case 0 -> System.out.println("Exiting...");
-                default -> System.out.println("Invalid option.");
+                default -> System.out.println("Invalid choice.");
             }
         } while (choice != 0);
     }
@@ -52,87 +59,70 @@ public class PharmacyUI {
         System.out.print("Enter Category: ");
         String category = scanner.nextLine();
         System.out.print("Enter Stock: ");
-        int stock = scanner.nextInt();
-        scanner.nextLine();
+        int stock = scanner.nextInt(); scanner.nextLine();
         System.out.print("Enter Expiry Date (YYYY-MM-DD): ");
         String expiry = scanner.nextLine();
 
         Medicine med = new Medicine(id, name, category, stock, expiry);
-        medicineList.add(med);
-        System.out.println("Medicine added.");
+        medControl.addMedicine(med);
+        System.out.println("✅ Medicine added.");
     }
 
     private void viewMedicines() {
-        if (medicineList.isEmpty()) {
+        MyArrayList<Medicine> list = medControl.getAllMedicines();
+        if (list.isEmpty()) {
             System.out.println("No medicines available.");
             return;
         }
-        for (int i = 0; i < medicineList.size(); i++) {
-            System.out.println(medicineList.get(i));
+        System.out.println("=== Medicine List ===");
+        for (int i = 0; i < list.size(); i++) {
+            System.out.println(list.get(i));
         }
     }
 
     private void searchMedicine() {
-        System.out.print("Enter name to search: ");
-        String search = scanner.nextLine();
-        boolean found = false;
-
-        for (int i = 0; i < medicineList.size(); i++) {
-            Medicine med = medicineList.get(i);
-            if (med.getName().toLowerCase().contains(search.toLowerCase())) {
-                System.out.println(med);
-                found = true;
-            }
-        }
-
-        if (!found) {
-            System.out.println("No medicine found with that name.");
+        System.out.print("Enter medicine name to search: ");
+        String name = scanner.nextLine();
+        Medicine med = medControl.findByName(name);
+        if (med != null) {
+            System.out.println("Found: " + med);
+        } else {
+            System.out.println("❌ Medicine not found.");
         }
     }
 
     private void sortMedicines() {
-        medicineList.sortByStockDescending();
-        System.out.println("Sorted medicines by stock (descending).");
+        medControl.sortMedicinesByStock();
+        System.out.println("✅ Medicines sorted by stock (descending).");
     }
 
     private void dispenseMedicine() {
-        System.out.print("Enter Medicine ID to dispense: ");
+        System.out.print("Enter Medicine ID: ");
         String id = scanner.nextLine();
         System.out.print("Enter quantity to dispense: ");
-        int quantity = scanner.nextInt();
-        scanner.nextLine();
-
-        for (int i = 0; i < medicineList.size(); i++) {
-            Medicine med = medicineList.get(i);
-            if (med.getMedicineID().equalsIgnoreCase(id)) {
-                if (med.getStock() >= quantity) {
-                    med.reduceStock(quantity);
-                    System.out.println("Dispensed. Remaining stock: " + med.getStock());
-                } else {
-                    System.out.println("Not enough stock.");
-                }
-                return;
-            }
+        int qty = scanner.nextInt(); scanner.nextLine();
+        boolean success = medControl.dispenseMedicine(id, qty);
+        if (success) {
+            System.out.println("✅ Dispensed successfully.");
+        } else {
+            System.out.println("❌ Failed. Either not found or insufficient stock.");
         }
-
-        System.out.println("Medicine ID not found.");
     }
 
     private void removeMedicine() {
         System.out.print("Enter Medicine ID to remove: ");
         String id = scanner.nextLine();
-
-        for (int i = 0; i < medicineList.size(); i++) {
-            Medicine med = medicineList.get(i);
-            if (med.getMedicineID().equalsIgnoreCase(id)) {
-                boolean removed = medicineList.remove(med);
-                if (removed) {
-                    System.out.println("Medicine removed.");
-                }
-                return;
-            }
+        boolean removed = medControl.removeMedicine(id);
+        if (removed) {
+            System.out.println("✅ Medicine removed.");
+        } else {
+            System.out.println("❌ Medicine not found.");
         }
+    }
 
-        System.out.println("Medicine not found.");
+    private void lowStockReport() {
+        System.out.print("Enter stock threshold: ");
+        int threshold = scanner.nextInt(); scanner.nextLine();
+        medControl.generateLowStockReport(threshold);
     }
 }
