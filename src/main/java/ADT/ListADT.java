@@ -4,6 +4,7 @@
  */
 package ADT;
 
+
 /**
  *
  * @author yapji
@@ -17,9 +18,7 @@ public interface ListADT <T> {
     boolean contains(T item);            // Check if value exists
     int size();                          // Get current size
     boolean isEmpty();  // True if list has no elements
-    boolean isFull(); 
     void clear();     
-    T findByName(String name);           // Search item by name (for Pharmacy)
     void sortByStockDescending();
     
 }

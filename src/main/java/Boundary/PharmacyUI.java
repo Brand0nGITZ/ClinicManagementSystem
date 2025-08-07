@@ -65,7 +65,7 @@ public class PharmacyUI {
 
         Medicine med = new Medicine(id, name, category, stock, expiry);
         medControl.addMedicine(med);
-        System.out.println("✅ Medicine added.");
+        System.out.println(med.getName() + " | " +  med.getCategory() + " | "  + med.getStock() +  " | " + med.getExpiryDate() + " | "  );
     }
 
     private void viewMedicines() {
@@ -84,16 +84,16 @@ public class PharmacyUI {
         System.out.print("Enter medicine name to search: ");
         String name = scanner.nextLine();
         Medicine med = medControl.findByName(name);
-        if (med != null) {
+        if (med != null) { 
             System.out.println("Found: " + med);
         } else {
-            System.out.println("❌ Medicine not found.");
+            System.out.println("Medicine not found.");
         }
     }
 
     private void sortMedicines() {
         medControl.sortMedicinesByStock();
-        System.out.println("✅ Medicines sorted by stock (descending).");
+        System.out.println("Medicines sorted by stock (descending).");
     }
 
     private void dispenseMedicine() {
@@ -103,9 +103,9 @@ public class PharmacyUI {
         int qty = scanner.nextInt(); scanner.nextLine();
         boolean success = medControl.dispenseMedicine(id, qty);
         if (success) {
-            System.out.println("✅ Dispensed successfully.");
+            System.out.println("Dispensed successfully.");
         } else {
-            System.out.println("❌ Failed. Either not found or insufficient stock.");
+            System.out.println("Failed. Either not found or insufficient stock.");
         }
     }
 
