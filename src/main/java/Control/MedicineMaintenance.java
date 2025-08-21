@@ -4,8 +4,8 @@
  */
 package Control;
 import Entity.Medicine;
-import ADT.ListADT;
 import ADT.MyArrayList;
+import ADT.ListInterface;
 /**
  *
  * @author yapji
@@ -46,17 +46,11 @@ public class MedicineMaintenance {
     }
 
     public Medicine findByName(String name) {
-        for (int i = 0; i < medicineList.size(); i++) {
-            Medicine med = medicineList.get(i);
-            if (med.getName().equalsIgnoreCase(name)) {
-                return med;
-            }
-        }
-        return null;
+        return medicineList.findFirst(med -> med.getName().equalsIgnoreCase(name));
     }
 
     public void sortMedicinesByStock() {
-        medicineList.sortByStockDescending();
+        medicineList.sort((med1, med2) -> Integer.compare(med2.getStock(), med1.getStock()));
     }
 
     public void generateLowStockReport(int threshold) {

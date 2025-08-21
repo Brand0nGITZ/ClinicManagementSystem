@@ -33,6 +33,7 @@ public class PharmacyUI {
             System.out.println("5. Dispense Medicine (Reduce Stock)");
             System.out.println("6. Remove Medicine");
             System.out.println("7. Low Stock Report");
+            System.out.println("8. 📊 Pharmacy Analytics");
             System.out.println("0. Exit");
             System.out.print("Enter choice: ");
             choice = scanner.nextInt(); scanner.nextLine();
@@ -45,6 +46,7 @@ public class PharmacyUI {
                 case 5 -> dispenseMedicine();
                 case 6 -> removeMedicine();
                 case 7 -> lowStockReport();
+                case 8 -> pharmacyAnalytics();
                 case 0 -> System.out.println("Exiting...");
                 default -> System.out.println("Invalid choice.");
             }
@@ -124,5 +126,65 @@ public class PharmacyUI {
         System.out.print("Enter stock threshold: ");
         int threshold = scanner.nextInt(); scanner.nextLine();
         medControl.generateLowStockReport(threshold);
+    }
+    
+    private void pharmacyAnalytics() {
+        MyArrayList<Medicine> list = medControl.getAllMedicines();
+        if (list.isEmpty()) {
+            System.out.println("No medicines available for analytics.");
+            return;
+        }
+        
+        System.out.println("\n📊 PHARMACY ANALYTICS DASHBOARD");
+        System.out.println("=".repeat(50));
+        
+        // 🔍 Most Popular Medicine Category (using frequency tracking)
+        Medicine mostFrequent = list.getMostFrequent();
+        if (mostFrequent != null) {
+            System.out.println("🏆 Most Popular Category: " + mostFrequent.getCategory());
+            System.out.println("   (Based on frequency in inventory)");
+        }
+        
+        // 📈 Stock Distribution Analysis
+        System.out.println("\n📈 STOCK DISTRIBUTION:");
+        int highStock = list.filter(med -> med.getStock() > 50).size();
+        int mediumStock = list.filter(med -> med.getStock() >= 20 && med.getStock() <= 50).size();
+        int lowStock = list.filter(med -> med.getStock() < 20).size();
+        
+        System.out.println("   High Stock (>50): " + highStock + " medicines");
+        System.out.println("   Medium Stock (20-50): " + mediumStock + " medicines");
+        System.out.println("   Low Stock (<20): " + lowStock + " medicines");
+        
+        // 🎯 Category Breakdown
+        System.out.println("\n🎯 MEDICINE CATEGORIES:");
+        int painkillers = list.filter(med -> med.getCategory().equalsIgnoreCase("Painkiller")).size();
+        int antibiotics = list.filter(med -> med.getCategory().equalsIgnoreCase("Antibiotic")).size();
+        int vitamins = list.filter(med -> med.getCategory().equalsIgnoreCase("Vitamin")).size();
+        int others = list.size() - painkillers - antibiotics - vitamins;
+        
+        System.out.println("   Painkillers: " + painkillers);
+        System.out.println("   Antibiotics: " + antibiotics);
+        System.out.println("   Vitamins: " + vitamins);
+        System.out.println("   Others: " + others);
+        
+        // ⚠️ Urgent Alerts
+        System.out.println("\n⚠️ URGENT ALERTS:");
+        int expiringSoon = list.filter(med -> med.getExpiryDate().contains("2025-06")).size();
+        if (expiringSoon > 0) {
+            System.out.println("   ⚠️ " + expiringSoon + " medicines expiring in June 2025!");
+        } else {
+            System.out.println("   ✅ No urgent expiry alerts");
+        }
+        
+        // 🎲 Random Medicine Spotlight (for staff training)
+        Medicine randomMed = list.getRandom();
+        if (randomMed != null) {
+            System.out.println("\n🎲 STAFF TRAINING SPOTLIGHT:");
+            System.out.println("   Today's featured medicine: " + randomMed.getName());
+            System.out.println("   Category: " + randomMed.getCategory());
+            System.out.println("   Current Stock: " + randomMed.getStock());
+        }
+        
+        System.out.println("\n" + "=".repeat(50));
     }
 }
