@@ -15,11 +15,22 @@ import java.util.Scanner;
  */
 public class PharmacyUI {
     private final Scanner scanner = new Scanner(System.in);
-    private final MedicineMaintenance medControl;
+    private final MedicineMaintenance medicineControl;
 
-    public PharmacyUI() {
-        MyArrayList<Medicine> medicineList = new MyArrayList<>();
-        this.medControl = new MedicineMaintenance(medicineList);
+    public PharmacyUI(MedicineMaintenance medicineControl) {
+        this.medicineControl = medicineControl;
+        initializeMedicines();
+    }
+
+    private void initializeMedicines() {
+        // This method is not fully implemented in the original file,
+        // so it's added here to make the constructor valid.
+        // In a real scenario, you would load medicines from a file or database here.
+        System.out.println("Initializing medicines... (Placeholder)");
+        // Example: Add some default medicines
+        medicineControl.addMedicine(new Medicine("MED001", "Paracetamol", "Painkiller", 100, "2024-12-31"));
+        medicineControl.addMedicine(new Medicine("MED002", "Amoxicillin", "Antibiotic", 50, "2024-07-01"));
+        medicineControl.addMedicine(new Medicine("MED003", "Vitamin C", "Vitamin", 200, "2025-06-30"));
     }
 
     public void run() {
@@ -66,12 +77,12 @@ public class PharmacyUI {
         String expiry = scanner.nextLine();
 
         Medicine med = new Medicine(id, name, category, stock, expiry);
-        medControl.addMedicine(med);
+        medicineControl.addMedicine(med);
         System.out.println(med.getName() + " | " +  med.getCategory() + " | "  + med.getStock() +  " | " + med.getExpiryDate() + " | "  );
     }
 
     private void viewMedicines() {
-        MyArrayList<Medicine> list = medControl.getAllMedicines();
+        MyArrayList<Medicine> list = medicineControl.getAllMedicines();
         if (list.isEmpty()) {
             System.out.println("No medicines available.");
             return;
@@ -85,7 +96,7 @@ public class PharmacyUI {
     private void searchMedicine() {
         System.out.print("Enter medicine name to search: ");
         String name = scanner.nextLine();
-        Medicine med = medControl.findByName(name);
+        Medicine med = medicineControl.findByName(name);
         if (med != null) { 
             System.out.println("Found: " + med);
         } else {
@@ -94,7 +105,7 @@ public class PharmacyUI {
     }
 
     private void sortMedicines() {
-        medControl.sortMedicinesByStock();
+        medicineControl.sortMedicinesByStock();
         System.out.println("Medicines sorted by stock (descending).");
     }
 
@@ -103,7 +114,7 @@ public class PharmacyUI {
         String id = scanner.nextLine();
         System.out.print("Enter quantity to dispense: ");
         int qty = scanner.nextInt(); scanner.nextLine();
-        boolean success = medControl.dispenseMedicine(id, qty);
+        boolean success = medicineControl.dispenseMedicine(id, qty);
         if (success) {
             System.out.println("Dispensed successfully.");
         } else {
@@ -114,7 +125,7 @@ public class PharmacyUI {
     private void removeMedicine() {
         System.out.print("Enter Medicine ID to remove: ");
         String id = scanner.nextLine();
-        boolean removed = medControl.removeMedicine(id);
+        boolean removed = medicineControl.removeMedicine(id);
         if (removed) {
             System.out.println("✅ Medicine removed.");
         } else {
@@ -125,11 +136,11 @@ public class PharmacyUI {
     private void lowStockReport() {
         System.out.print("Enter stock threshold: ");
         int threshold = scanner.nextInt(); scanner.nextLine();
-        medControl.generateLowStockReport(threshold);
+        medicineControl.generateLowStockReport(threshold);
     }
     
     private void pharmacyAnalytics() {
-        MyArrayList<Medicine> list = medControl.getAllMedicines();
+        MyArrayList<Medicine> list = medicineControl.getAllMedicines();
         if (list.isEmpty()) {
             System.out.println("No medicines available for analytics.");
             return;

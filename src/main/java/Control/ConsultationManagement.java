@@ -16,18 +16,18 @@ public class ConsultationManagement {
     private final MyArrayList<Consultation> consultationList;
     private int nextConsultationId = 1;
     
-    // Symptom categorization dictionary
+    // Symptom to diagnosis mapping
     private final String[][] symptomDiagnosisMap = {
         {"fever", "Fever"},
-        {"cough", "Flu"},
-        {"stomach ache", "Gastritis"},
-        {"headache", "Migraine"},
-        {"vomiting", "Food Poisoning"},
-        {"dizziness", "Vertigo"},
-        {"chest pain", "Heart Condition"},
-        {"back pain", "Muscle Strain"},
-        {"sore throat", "Tonsillitis"},
-        {"fatigue", "Anemia"}
+        {"cough", "Common Cold"},
+        {"headache", "Headache"},
+        {"stomach", "Gastritis"},
+        {"pain", "Pain Management"},
+        {"dizzy", "Dizziness"},
+        {"nausea", "Nausea"},
+        {"fatigue", "Fatigue"},
+        {"sore throat", "Sore Throat"},
+        {"back pain", "Back Pain"}
     };
 
     public ConsultationManagement() {
@@ -39,7 +39,7 @@ public class ConsultationManagement {
         return String.format("C%03d", nextConsultationId++);
     }
 
-    // Symptom categorization
+    // Categorize symptoms to diagnosis
     public String categorizeSymptoms(String symptoms) {
         String lowerSymptoms = symptoms.toLowerCase();
         for (String[] mapping : symptomDiagnosisMap) {
@@ -47,7 +47,7 @@ public class ConsultationManagement {
                 return mapping[1];
             }
         }
-        return "General Check-up";
+        return "General Consultation";
     }
 
     // Check doctor availability (max 2 consultations per doctor)
@@ -132,28 +132,6 @@ public class ConsultationManagement {
         return true;
     }
 
-    // Calculate estimated waiting time
-    public int calculateWaitingTime(String queueType) {
-        int baseTime = 15; // 15 minutes per consultation
-        int queueLength = 0;
-        
-        // Count waiting patients in same queue type
-        for (int i = 0; i < consultationList.size(); i++) {
-            Consultation consultation = consultationList.get(i);
-            if (consultation.getStatus().equals("WAITING") && 
-                consultation.getQueueType().equalsIgnoreCase(queueType)) {
-                queueLength++;
-            }
-        }
-        
-        // Emergency gets priority
-        if (queueType.equalsIgnoreCase("EMERGENCY")) {
-            return Math.max(5, queueLength * 10); // 5-10 minutes for emergency
-        }
-        
-        return queueLength * baseTime;
-    }
-
     public void addConsultation(Consultation consultation) {
         // Auto-categorize symptoms
         String diagnosis = categorizeSymptoms(consultation.getSymptoms());
@@ -164,6 +142,38 @@ public class ConsultationManagement {
         consultation.setEstimatedWaitingMinutes(waitingTime);
         
         consultationList.add(consultation);
+    }
+
+    // Calculate waiting time based on queue type
+    private int calculateWaitingTime(String queueType) {
+        switch (queueType.toUpperCase()) {
+            case "EMERGENCY" -> {
+                return 5; // Emergency patients get priority
+            }
+            case "WALK_IN" -> {
+                int walkInCount = 0;
+                for (int i = 0; i < consultationList.size(); i++) {
+                    Consultation c = consultationList.get(i);
+                    if (c.getQueueType().equals("WALK_IN") && c.getStatus().equals("WAITING")) {
+                        walkInCount++;
+                    }
+                }
+                return walkInCount * 15; // 15 minutes per walk-in patient
+            }
+            case "SCHEDULED" -> {
+                int scheduledCount = 0;
+                for (int i = 0; i < consultationList.size(); i++) {
+                    Consultation c = consultationList.get(i);
+                    if (c.getQueueType().equals("SCHEDULED") && c.getStatus().equals("WAITING")) {
+                        scheduledCount++;
+                    }
+                }
+                return scheduledCount * 15; // 15 minutes per scheduled patient
+            }
+            default -> {
+                return 30;
+            }
+        }
     }
 
     public boolean removeConsultation(String consultationId) {
@@ -193,7 +203,7 @@ public class ConsultationManagement {
         // Priority: EMERGENCY > WALK_IN > SCHEDULED
         for (int i = 0; i < consultationList.size(); i++) {
             Consultation consultation = consultationList.get(i);
-            if (consultation.getStatus().equals("WAITING") && 
+             if (consultation.getStatus().equals("WAITING") && 
                 consultation.getQueueType().equalsIgnoreCase("EMERGENCY")) {
                 return consultation;
             }
@@ -254,6 +264,7 @@ public class ConsultationManagement {
         return symptomConsultations;
     }
 
+    // Update consultation status
     public boolean updateConsultationStatus(String consultationId, String newStatus) {
         for (int i = 0; i < consultationList.size(); i++) {
             Consultation consultation = consultationList.get(i);
@@ -267,7 +278,7 @@ public class ConsultationManagement {
 
     // Creative ADT Usage: Generate Queue Report
     public void generateQueueReport() {
-        System.out.println("=== Multi-Level Queue Report ===");
+        System.out.println("=== Consultation Queue Report ===");
         
         if (consultationList.isEmpty()) {
             System.out.println("No consultations in queue.");
@@ -278,10 +289,12 @@ public class ConsultationManagement {
         int emergency = 0, walkIn = 0, scheduled = 0;
         for (int i = 0; i < consultationList.size(); i++) {
             Consultation consultation = consultationList.get(i);
-            switch (consultation.getQueueType().toUpperCase()) {
-                case "EMERGENCY" -> emergency++;
-                case "WALK_IN" -> walkIn++;
-                case "SCHEDULED" -> scheduled++;
+            if (consultation.getStatus().equals("WAITING")) {
+                switch (consultation.getQueueType().toUpperCase()) {
+                    case "EMERGENCY" -> emergency++;
+                    case "WALK_IN" -> walkIn++;
+                    case "SCHEDULED" -> scheduled++;
+                }
             }
         }
 

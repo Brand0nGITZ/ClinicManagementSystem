@@ -11,19 +11,21 @@ package Entity;
 public class Consultation {
     private String consultationId;
     private String patientId;
+    private String patientName;
     private String doctorId;
     private String doctorName;
     private String appointmentTime;
     private String symptoms;
     private String diagnosis;
     private String queueType; // WALK_IN, SCHEDULED, EMERGENCY
-    private String status; // WAITING, IN_PROGRESS, COMPLETED, CANCELLED, NO_SHOW
+    private String status; // WAITING, COMPLETED, CANCELLED, NO_SHOW
     private int estimatedWaitingMinutes;
 
-    public Consultation(String consultationId, String patientId, String doctorId, String doctorName,
+    public Consultation(String consultationId, String patientId, String patientName, String doctorId, String doctorName,
                        String appointmentTime, String symptoms, String queueType) {
         this.consultationId = consultationId;
         this.patientId = patientId;
+        this.patientName = patientName;
         this.doctorId = doctorId;
         this.doctorName = doctorName;
         this.appointmentTime = appointmentTime;
@@ -37,6 +39,7 @@ public class Consultation {
     // Getters
     public String getConsultationId() { return consultationId; }
     public String getPatientId() { return patientId; }
+    public String getPatientName() { return patientName; }
     public String getDoctorId() { return doctorId; }
     public String getDoctorName() { return doctorName; }
     public String getAppointmentTime() { return appointmentTime; }
@@ -64,5 +67,7 @@ public class Consultation {
         Consultation other = (Consultation) obj;
         return this.consultationId.equalsIgnoreCase(other.consultationId);
     }
+
+  
 }
 
