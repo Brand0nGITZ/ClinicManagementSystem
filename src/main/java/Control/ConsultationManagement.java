@@ -295,7 +295,7 @@ public class ConsultationManagement {
         return false;
     }
 
-    // Creative ADT Usage: Filter by Queue Type
+    //  Filter by Queue Type
     public ListInterface<Consultation> getConsultationsByQueueType(String queueType) {
         ListInterface<Consultation> filteredList = new MyArrayList<>();
         for (int i = 0; i < consultationList.size(); i++) {
@@ -307,7 +307,7 @@ public class ConsultationManagement {
         return filteredList;
     }
 
-    // Creative ADT Usage: Get Next Patient by Priority (Emergency > Scheduled > Walk-in)
+    //  Get Next Patient by Priority (Emergency > Scheduled > Walk-in)
     public Consultation getNextPatient() {
         // First, check for emergency patients (highest priority)
         for (int i = 0; i < consultationList.size(); i++) {
@@ -501,10 +501,12 @@ public class ConsultationManagement {
 
     // Creative ADT Usage: Generate Queue Report
     public void generateQueueReport() {
-        System.out.println("=== Consultation Queue Report ===");
+        System.out.println("\n=== Consultation Queue Report ===");
+        System.out.println("================================================================================================================");
         
         if (consultationList.isEmpty() && scheduledConsultations.isEmpty()) {
-            System.out.println("No consultations in queue.");
+            System.out.println("| No consultations in queue.                                                                                |");
+            System.out.println("================================================================================================================");
             return;
         }
 
@@ -529,37 +531,55 @@ public class ConsultationManagement {
             }
         }
 
-        System.out.println("Scheduled Queue: " + scheduled + " patients (Priority Queue)");
-        System.out.println("Emergency Queue: " + emergency + " patients");
-        System.out.println("Walk-in Queue: " + walkIn + " patients");
-        System.out.println("Total: " + (consultationList.size() + scheduledConsultations.size()) + " consultations");
+        // Queue Summary
+        System.out.println("| QUEUE SUMMARY                                                                                                |");
+        System.out.println("|==============================================================================================================|");
+        System.out.printf("| Scheduled Queue: %-3d patients (Priority Queue)                                                          |\n", scheduled);
+        System.out.printf("| Emergency Queue: %-3d patients                                                                              |\n", emergency);
+        System.out.printf("| Walk-in Queue:   %-3d patients                                                                              |\n", walkIn);
+        System.out.printf("| Total:           %-3d consultations                                                                         |\n", (consultationList.size() + scheduledConsultations.size()));
+        System.out.println("|==============================================================================================================|");
         
-        // Show estimated waiting times
+        // Waiting Times
+        System.out.println("| ESTIMATED WAITING TIMES                                                                                     |");
+        System.out.println("|==============================================================================================================|");
         if (emergency > 0) {
-            System.out.println("Emergency waiting time: ~" + Math.max(5, emergency * 10) + " minutes");
+            System.out.printf("| Emergency: ~%-3d minutes                                                                                    |\n", Math.max(5, emergency * 10));
+        } else {
+            System.out.println("| Emergency: No patients waiting                                                                              |");
         }
         if (walkIn > 0) {
-            System.out.println("Walk-in waiting time: ~" + (walkIn * 15) + " minutes");
+            System.out.printf("| Walk-in:   ~%-3d minutes                                                                                    |\n", (walkIn * 15));
+        } else {
+            System.out.println("| Walk-in:   No patients waiting                                                                              |");
         }
         if (scheduled > 0) {
-            System.out.println("Scheduled appointments: Time-based priority");
+            System.out.println("| Scheduled: Time-based priority                                                                              |");
+        } else {
+            System.out.println("| Scheduled: No appointments waiting                                                                          |");
         }
+        System.out.println("|==============================================================================================================|");
         
         // Show scheduled appointments
         if (scheduled > 0) {
-            System.out.println("\nScheduled Appointments:");
+            System.out.println("| SCHEDULED APPOINTMENTS                                                                                    |");
+            System.out.println("|==============================================================================================================|");
             for (int i = 0; i < scheduledConsultations.size(); i++) {
                 Consultation consultation = scheduledConsultations.get(i);
                 if (consultation.getStatus().equals("WAITING")) {
-                    System.out.println("   " + consultation.getPatientName() + " - " + 
-                                     consultation.getAppointmentTime() + " - Dr. " + 
-                                     consultation.getDoctorName());
+                    System.out.printf("| %-20s | %-8s | Dr. %-15s | %-8s |\n",
+                        consultation.getPatientName(),
+                        consultation.getAppointmentTime(),
+                        consultation.getDoctorName(),
+                        consultation.getStatus());
                 }
             }
+            System.out.println("|==============================================================================================================|");
         }
         
         // Show doctor workload (both lists)
-        System.out.println("\n=== Doctor Workload ===");
+        System.out.println("| DOCTOR WORKLOAD                                                                                             |");
+        System.out.println("|==============================================================================================================|");
         int doctor1Count = 0, doctor2Count = 0;
         
         // Count from regular consultations
@@ -588,8 +608,9 @@ public class ConsultationManagement {
             }
         }
         
-        System.out.println("Dr. Smith (D001): " + doctor1Count + "/2 patients");
-        System.out.println("Dr. Johnson (D002): " + doctor2Count + "/2 patients");
+        System.out.printf("| Dr. Smith (D001):   %d/2 patients                                                                          |\n", doctor1Count);
+        System.out.printf("| Dr. Johnson (D002): %d/2 patients                                                                          |\n", doctor2Count);
+        System.out.println("================================================================================================================");
     }
 
     public ListInterface<Consultation> getAllConsultations() {

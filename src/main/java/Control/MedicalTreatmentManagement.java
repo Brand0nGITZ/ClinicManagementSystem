@@ -139,46 +139,55 @@ public class MedicalTreatmentManagement {
 
     // Creative ADT Usage: Generate Treatment Reports
     public void generateTreatmentReport() {
-        System.out.println("=== Medical Treatment Report ===");
+        System.out.println("\n=== Medical Treatment Report ===");
+        System.out.println("================================================================================================================");
         
         if (treatmentList.isEmpty()) {
-            System.out.println("No treatments found.");
+            System.out.println("| No treatments found.                                                                                        |");
+            System.out.println("================================================================================================================");
             return;
         }
 
         // Count by status
-        int planned = 0, inProgress = 0, completed = 0, cancelled = 0;
+        int planned = 0, completed = 0, cancelled = 0, paid = 0;
         for (int i = 0; i < treatmentList.size(); i++) {
             MedicalTreatment treatment = treatmentList.get(i);
             switch (treatment.getStatus().toUpperCase()) {
                 case "PLANNED" -> planned++;
-                case "IN_PROGRESS" -> inProgress++;
                 case "COMPLETED" -> completed++;
                 case "CANCELLED" -> cancelled++;
+                case "PAID" -> paid++;
             }
         }
 
-        System.out.println("Treatment Status:");
-        System.out.println("  Planned: " + planned + " treatments");
-        System.out.println("  In Progress: " + inProgress + " treatments");
-        System.out.println("  Completed: " + completed + " treatments");
-        System.out.println("  Cancelled: " + cancelled + " treatments");
-        System.out.println("Total: " + treatmentList.size() + " treatments");
+        // Treatment Status Summary
+        System.out.println("| TREATMENT STATUS SUMMARY                                                                                      |");
+        System.out.println("|==============================================================================================================|");
+        System.out.printf("| Planned:     %-3d treatments                                                                                |\n", planned);
+        System.out.printf("| Completed:   %-3d treatments                                                                                |\n", completed);
+        System.out.printf("| Cancelled:   %-3d treatments                                                                                |\n", cancelled);
+        System.out.printf("| Paid:        %-3d treatments                                                                                |\n", paid);
+        System.out.printf("| Total:       %-3d treatments                                                                                |\n", treatmentList.size());
+        System.out.println("|==============================================================================================================|");
 
         // Financial summary
-        System.out.println("\nFinancial Summary:");
-        System.out.println("  Total Revenue: RM" + String.format("%.2f", calculateTotalRevenue()));
+        System.out.println("| FINANCIAL SUMMARY                                                                                            |");
+        System.out.println("|==============================================================================================================|");
+        System.out.printf("| Total Revenue: RM%-10.2f                                                                                    |\n", calculateTotalRevenue());
+        System.out.println("|==============================================================================================================|");
         
         // Most common diagnoses
-        System.out.println("\nMost Common Diagnoses:");
+        System.out.println("| DIAGNOSIS ANALYSIS                                                                                          |");
+        System.out.println("|==============================================================================================================|");
         String[] commonDiagnoses = {"Fever", "Common Cold", "Headache", "Gastritis", "Pain Management"};
         for (String diagnosis : commonDiagnoses) {
             ListInterface<MedicalTreatment> diagnosisTreatments = getTreatmentsByDiagnosis(diagnosis);
             if (!diagnosisTreatments.isEmpty()) {
-                System.out.println("  " + diagnosis + ": " + diagnosisTreatments.size() + " treatments");
-                System.out.println("    Revenue: RM" + String.format("%.2f", calculateRevenueByDiagnosis(diagnosis)));
+                System.out.printf("| %-15s | %-3d treatments | Revenue: RM%-10.2f |\n", 
+                    diagnosis, diagnosisTreatments.size(), calculateRevenueByDiagnosis(diagnosis));
             }
         }
+        System.out.println("================================================================================================================");
     }
 
     // Creative ADT Usage: Generate Patient Treatment Summary
@@ -190,33 +199,71 @@ public class MedicalTreatmentManagement {
             return;
         }
 
-        System.out.println("=== Patient Treatment Summary ===");
-        System.out.println("Patient ID: " + patientId);
-        System.out.println("Total Treatments: " + patientHistory.size());
+        // Get patient name from the first treatment's consultation
+        String patientName = "Unknown";
+        if (!patientHistory.isEmpty()) {
+            MedicalTreatment firstTreatment = patientHistory.get(0);
+            // Try to get patient name from consultation if available
+            // For now, we'll use a simple mapping
+            patientName = getPatientNameFromId(firstTreatment.getPatientId());
+        }
+
+        System.out.println("\n=== Patient Treatment Summary ===");
+        System.out.println("================================================================================================================");
+        System.out.printf("| Patient ID: %-20s | Patient Name: %-20s | Total Treatments: %-3d |\n", 
+            patientId, patientName, patientHistory.size());
+        System.out.println("================================================================================================================");
 
         double totalCost = 0.0;
         int completedTreatments = 0;
         
+        // Patient Treatment Details
+        System.out.println("| TREATMENT DETAILS                                                                                           |");
+        System.out.println("|==============================================================================================================|");
+        System.out.println("| Treatment ID | Date       | Diagnosis | Status   | Cost    | Prescription");
+        System.out.println("|==============================================================================================================|");
+        
         for (int i = 0; i < patientHistory.size(); i++) {
             MedicalTreatment treatment = patientHistory.get(i);
-            System.out.println("\nTreatment " + (i + 1) + ":");
-            System.out.println("  ID: " + treatment.getTreatmentId());
-            System.out.println("  Date: " + treatment.getTreatmentDate());
-            System.out.println("  Diagnosis: " + treatment.getDiagnosis());
-            System.out.println("  Status: " + treatment.getStatus());
-            System.out.println("  Cost: RM" + String.format("%.2f", treatment.getCost()));
-            System.out.println("  Prescription: " + treatment.getPrescription());
+            System.out.printf("| %-12s | %-10s | %-9s | %-9s | RM%-6s | %s\n",
+                treatment.getTreatmentId(),
+                treatment.getTreatmentDate(),
+                treatment.getDiagnosis(),
+                treatment.getStatus(),
+                String.format("%.2f", treatment.getCost()),
+                treatment.getPrescription());
             
             totalCost += treatment.getCost();
-            if (treatment.getStatus().equals("COMPLETED")) {
+            if (treatment.getStatus().equals("COMPLETED") || treatment.getStatus().equals("PAID")) {
                 completedTreatments++;
             }
         }
+        System.out.println("|==============================================================================================================|");
 
-        System.out.println("\nSummary:");
-        System.out.println("  Total Cost: RM" + String.format("%.2f", totalCost));
-        System.out.println("  Completed Treatments: " + completedTreatments);
-        System.out.println("  Pending Treatments: " + (patientHistory.size() - completedTreatments));
+        // Patient Summary
+        System.out.println("| PATIENT SUMMARY                                                                                             |");
+        System.out.println("|==============================================================================================================|");
+        System.out.printf("| Total Cost:           RM%-10.2f                                                                              |\n", totalCost);
+        System.out.printf("| Completed Treatments: %-3d                                                                                  |\n", completedTreatments);
+        System.out.printf("| Pending Treatments:   %-3d                                                                                  |\n", (patientHistory.size() - completedTreatments));
+        System.out.println("================================================================================================================");
+    }
+
+    // Helper method to get patient name from ID
+    private String getPatientNameFromId(String patientId) {
+        return switch (patientId) {
+            case "P001" -> "John Smith";
+            case "P002" -> "Sarah Johnson";
+            case "P003" -> "Michael Brown";
+            case "P004" -> "Emily Davis";
+            case "P005" -> "David Wilson";
+            case "P006" -> "Lisa Anderson";
+            case "P007" -> "Robert Taylor";
+            case "P008" -> "Jennifer Martinez";
+            case "P009" -> "William Garcia";
+            case "P010" -> "Amanda Rodriguez";
+            default -> "Unknown Patient";
+        };
     }
 
     public ListInterface<MedicalTreatment> getAllTreatments() {

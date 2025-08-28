@@ -40,8 +40,8 @@ public class ConsultationUI {
             System.out.println("4. Get Next Patient");
             System.out.println("5. Change Consultation Status");
             System.out.println("6. View Queue by Type");
-            System.out.println("7. Search by Patient ID");
-            System.out.println("8. Search by Doctor ID");
+            System.out.println("7. Search by Patient");
+            System.out.println("8. Search by Doctor");
             System.out.println("9. Search by Symptoms");
             System.out.println("10. Remove Consultation");
             System.out.println("11. Generate Queue Report");
@@ -298,10 +298,9 @@ public class ConsultationUI {
         }
         
         System.out.println("\n=== All Consultations ===");
-        System.out.println("+=============+=====================+=====================+==========+==========+==========+=====================+=====================+");
-        System.out.println("| Consultation| Patient             | Doctor               | Time     | Type     | Status   | Symptoms             | Diagnosis            |");
-        System.out.println("| ID          | ID (Name)           | ID (Name)            |          |          |          |                     |                     |");
-        System.out.println("+=============+=====================+=====================+==========+==========+==========+=====================+=====================+");
+        System.out.println("================================================================================================================");
+        System.out.println("| Consultation ID | Patient ID (Name)        | Doctor ID (Name)         | Time  | Type     | Status   | Symptoms");
+        System.out.println("================================================================================================================");
         
         for (int i = 0; i < consultations.size(); i++) {
             Consultation consultation = consultations.get(i);
@@ -310,19 +309,16 @@ public class ConsultationUI {
             String waitInfo = consultation.getStatus().equals("WAITING") ? 
                 String.format(" (%d min)", consultation.getEstimatedWaitingMinutes()) : "";
             
-            System.out.printf("| %-11s | %-19s | %-19s | %-8s | %-8s | %-8s | %-19s | %-19s |%s\n",
+            System.out.printf("| %-15s | %-23s | %-24s | %-5s | %-9s | %-9s | %s\n",
                 consultation.getConsultationId(),
                 patientInfo,
                 doctorInfo,
                 consultation.getAppointmentTime(),
                 consultation.getQueueType(),
                 consultation.getStatus() + waitInfo,
-                consultation.getSymptoms(),
-                consultation.getDiagnosis(),
-                "");
+                consultation.getSymptoms());
         }
-        
-        System.out.println("+=============+=====================+=====================+==========+==========+==========+=====================+=====================+");
+        System.out.println("================================================================================================================");
     }
 
     private void getNextPatient() {
@@ -358,10 +354,9 @@ public class ConsultationUI {
         }
         
         System.out.println("\n=== " + queueType + " Queue ===");
-        System.out.println("+=============+=====================+=====================+==========+==========+==========+=====================+=====================+");
-        System.out.println("| Consultation| Patient             | Doctor               | Time     | Type     | Status   | Symptoms             | Diagnosis            |");
-        System.out.println("| ID          | ID (Name)           | ID (Name)            |          |          |          |                      |                     |");
-        System.out.println("+=============+=====================+=====================+==========+==========+==========+=====================+=====================+");
+        System.out.println("================================================================================================================");
+        System.out.println("| Consultation ID | Patient ID (Name)        | Doctor ID (Name)         | Time  | Type     | Status   | Symptoms");
+        System.out.println("================================================================================================================");
         
         for (int i = 0; i < queueConsultations.size(); i++) {
             Consultation consultation = queueConsultations.get(i);
@@ -370,19 +365,16 @@ public class ConsultationUI {
             String waitInfo = consultation.getStatus().equals("WAITING") ? 
                 String.format(" (%d min)", consultation.getEstimatedWaitingMinutes()) : "";
             
-            System.out.printf("| %-11s | %-19s | %-19s | %-8s | %-8s | %-8s | %-19s | %-19s |%s\n",
+            System.out.printf("| %-15s | %-23s | %-24s | %-5s | %-9s | %-9s | %s\n",
                 consultation.getConsultationId(),
                 patientInfo,
                 doctorInfo,
                 consultation.getAppointmentTime(),
                 consultation.getQueueType(),
                 consultation.getStatus() + waitInfo,
-                consultation.getSymptoms(),
-                consultation.getDiagnosis(),
-                "");
+                consultation.getSymptoms());
         }
-        
-        System.out.println("+=============+=====================+=====================+==========+==========+==========+=====================+=====================+");
+        System.out.println("================================================================================================================");
     }
 
     private void searchByPatient() {
@@ -399,21 +391,30 @@ public class ConsultationUI {
             return;
         }
         
-        System.out.println("\n=== Patient Consultations (Linear Search) ===");
-        System.out.println("(Using Linear Search with Custom Iterator)");
+        System.out.println("\n                                             === Patient Consultations  ===");
+       
+        System.out.println("=========================================================================================================================================");
+        System.out.println("| Consultation ID | Patient ID (Name)        | Doctor ID (Name)         | Time  | Type     | Status   | Symptoms");
+        System.out.println("=========================================================================================================================================");
         
         for (int i = 0; i < searchResults.size(); i++) {
             LinearSearch.SearchResult<Consultation> result = searchResults.get(i);
             Consultation consultation = result.item;
-            System.out.println("\n" + (i + 1) + ". " + consultation.getPatientName() + 
-                             " (ID: " + consultation.getPatientId() + ")");
-            System.out.println("   Consultation ID: " + consultation.getConsultationId());
-            System.out.println("   Doctor: " + consultation.getDoctorName());
-            System.out.println("   Symptoms: " + consultation.getSymptoms());
-            System.out.println("   Status: " + consultation.getStatus());
-            System.out.println("   Time: " + consultation.getAppointmentTime());
-            System.out.println("   Match Type: " + result.matchedField);
+            String patientInfo = String.format("%s (%s)", consultation.getPatientId(), consultation.getPatientName());
+            String doctorInfo = String.format("%s (%s)", consultation.getDoctorId(), consultation.getDoctorName());
+            String waitInfo = consultation.getStatus().equals("WAITING") ? 
+                String.format(" (%d min)", consultation.getEstimatedWaitingMinutes()) : "";
+            
+            System.out.printf("| %-15s | %-23s | %-24s | %-5s | %-9s | %-9s | %s\n",
+                consultation.getConsultationId(),
+                patientInfo,
+                doctorInfo,
+                consultation.getAppointmentTime(),
+                consultation.getQueueType(),
+                consultation.getStatus() + waitInfo,
+                consultation.getSymptoms());
         }
+        System.out.println("=========================================================================================================================================");
     }
 
     private void searchByDoctor() {
@@ -430,21 +431,30 @@ public class ConsultationUI {
             return;
         }
         
-        System.out.println("\n=== Doctor Consultations (Linear Search) ===");
-        System.out.println("(Using Linear Search with Custom Iterator)");
+        System.out.println("\n                                         === Doctor Consultations  ===");
+
+        System.out.println("=========================================================================================================================================");
+        System.out.println("| Consultation ID | Patient ID (Name)        | Doctor ID (Name)         | Time  | Type     | Status   | Symptoms");
+        System.out.println("=========================================================================================================================================");
         
         for (int i = 0; i < searchResults.size(); i++) {
             LinearSearch.SearchResult<Consultation> result = searchResults.get(i);
             Consultation consultation = result.item;
-            System.out.println("\n" + (i + 1) + ". " + consultation.getDoctorName() + 
-                             " (ID: " + consultation.getDoctorId() + ")");
-            System.out.println("   Consultation ID: " + consultation.getConsultationId());
-            System.out.println("   Patient: " + consultation.getPatientName());
-            System.out.println("   Symptoms: " + consultation.getSymptoms());
-            System.out.println("   Status: " + consultation.getStatus());
-            System.out.println("   Time: " + consultation.getAppointmentTime());
-            System.out.println("   Match Type: " + result.matchedField);
+            String patientInfo = String.format("%s (%s)", consultation.getPatientId(), consultation.getPatientName());
+            String doctorInfo = String.format("%s (%s)", consultation.getDoctorId(), consultation.getDoctorName());
+            String waitInfo = consultation.getStatus().equals("WAITING") ? 
+                String.format(" (%d min)", consultation.getEstimatedWaitingMinutes()) : "";
+            
+            System.out.printf("| %-15s | %-23s | %-24s | %-5s | %-9s | %-9s | %s\n",
+                consultation.getConsultationId(),
+                patientInfo,
+                doctorInfo,
+                consultation.getAppointmentTime(),
+                consultation.getQueueType(),
+                consultation.getStatus() + waitInfo,
+                consultation.getSymptoms());
         }
+        System.out.println("=========================================================================================================================================");
     }
 
     private void searchBySymptoms() {
@@ -462,32 +472,87 @@ public class ConsultationUI {
         }
         
         System.out.println("\n=== Consultations with symptoms containing '" + symptom + "' ===");
-        System.out.println("(Using Linear Search with Custom Iterator)");
+        System.out.println("================================================================================================================");
+        System.out.println("| Consultation ID | Patient ID (Name)        | Doctor ID (Name)         | Time  | Type     | Status   | Symptoms");
+        System.out.println("================================================================================================================");
         
         for (int i = 0; i < searchResults.size(); i++) {
             LinearSearch.SearchResult<Consultation> result = searchResults.get(i);
             Consultation consultation = result.item;
-            System.out.println("\n" + (i + 1) + ". " + consultation.getPatientName() + 
-                             " - " + consultation.getSymptoms());
-            System.out.println("   Consultation ID: " + consultation.getConsultationId());
-            System.out.println("   Doctor: " + consultation.getDoctorName());
-            System.out.println("   Status: " + consultation.getStatus());
-            System.out.println("   Time: " + consultation.getAppointmentTime());
-            System.out.println("   Match Type: " + result.matchedField);
+            String patientInfo = String.format("%s (%s)", consultation.getPatientId(), consultation.getPatientName());
+            String doctorInfo = String.format("%s (%s)", consultation.getDoctorId(), consultation.getDoctorName());
+            String waitInfo = consultation.getStatus().equals("WAITING") ? 
+                String.format(" (%d min)", consultation.getEstimatedWaitingMinutes()) : "";
+            
+            System.out.printf("| %-15s | %-23s | %-24s | %-5s | %-9s | %-9s | %s\n",
+                consultation.getConsultationId(),
+                patientInfo,
+                doctorInfo,
+                consultation.getAppointmentTime(),
+                consultation.getQueueType(),
+                consultation.getStatus() + waitInfo,
+                consultation.getSymptoms());
         }
+        System.out.println("================================================================================================================");
     }
 
 
 
     private void removeConsultation() {
-        System.out.print("Enter Consultation ID to remove: ");
-        String consultationId = scanner.nextLine();
+        // First, show all consultations for reference
+        ListInterface<Consultation> allConsultations = consultationControl.getAllConsultations();
+        if (allConsultations.isEmpty()) {
+            System.out.println("No consultations found to remove.");
+            return;
+        }
         
-        boolean removed = consultationControl.removeConsultation(consultationId);
-        if (removed) {
-            System.out.println("Consultation removed successfully!");
+        System.out.println("\n=== All Consultations (for reference) ===");
+        System.out.println("================================================================================================================");
+        System.out.println("| #  | Consultation ID | Patient ID (Name)        | Doctor ID (Name)         | Time  | Type     | Status   |");
+        System.out.println("================================================================================================================");
+        
+        for (int i = 0; i < allConsultations.size(); i++) {
+            Consultation consultation = allConsultations.get(i);
+            String patientInfo = String.format("%s (%s)", consultation.getPatientId(), consultation.getPatientName());
+            String doctorInfo = String.format("%s (%s)", consultation.getDoctorId(), consultation.getDoctorName());
+            
+            System.out.printf("| %-2d | %-15s | %-23s | %-24s | %-5s | %-9s | %-9s |\n",
+                (i + 1), consultation.getConsultationId(), patientInfo, doctorInfo,
+                consultation.getAppointmentTime(), consultation.getQueueType(), consultation.getStatus());
+        }
+        System.out.println("================================================================================================================");
+        
+        System.out.print("\nSelect consultation to remove (1-" + allConsultations.size() + "): ");
+        int choice = scanner.nextInt(); scanner.nextLine();
+        
+        if (choice < 1 || choice > allConsultations.size()) {
+            System.out.println("Invalid selection!");
+            return;
+        }
+        
+        Consultation selectedConsultation = allConsultations.get(choice - 1);
+        String consultationId = selectedConsultation.getConsultationId();
+        
+        System.out.println("\nSelected Consultation for Removal:");
+        System.out.println("   ID: " + consultationId);
+        System.out.println("   Patient: " + selectedConsultation.getPatientName());
+        System.out.println("   Doctor: " + selectedConsultation.getDoctorName());
+        System.out.println("   Status: " + selectedConsultation.getStatus());
+        System.out.println("   Type: " + selectedConsultation.getQueueType());
+        System.out.println("   Time: " + selectedConsultation.getAppointmentTime());
+        
+        System.out.print("Confirm removal? (y/n): ");
+        String confirm = scanner.nextLine();
+        
+        if (confirm.equalsIgnoreCase("y") || confirm.equalsIgnoreCase("yes")) {
+            boolean removed = consultationControl.removeConsultation(consultationId);
+            if (removed) {
+                System.out.println("Consultation removed successfully!");
+            } else {
+                System.out.println("Failed to remove consultation.");
+            }
         } else {
-            System.out.println("Consultation not found.");
+            System.out.println("Removal cancelled.");
         }
     }
 
@@ -504,13 +569,21 @@ public class ConsultationUI {
         }
         
         // Show all consultations
-        System.out.println("All Consultations:");
+        System.out.println("All Consultations (for reference):");
+        System.out.println("================================================================================================================");
+        System.out.println("| #  | Consultation ID | Patient ID (Name)        | Doctor ID (Name)         | Time  | Type     | Status   |");
+        System.out.println("================================================================================================================");
+        
         for (int i = 0; i < allConsultations.size(); i++) {
             Consultation consultation = allConsultations.get(i);
-            System.out.printf("%d. %s - Patient: %s - Status: %s - Type: %s - Time: %s%n", 
-                (i + 1), consultation.getConsultationId(), consultation.getPatientName(), 
-                consultation.getStatus(), consultation.getQueueType(), consultation.getAppointmentTime());
+            String patientInfo = String.format("%s (%s)", consultation.getPatientId(), consultation.getPatientName());
+            String doctorInfo = String.format("%s (%s)", consultation.getDoctorId(), consultation.getDoctorName());
+            
+            System.out.printf("| %-2d | %-15s | %-23s | %-24s | %-5s | %-9s | %-9s |\n",
+                (i + 1), consultation.getConsultationId(), patientInfo, doctorInfo,
+                consultation.getAppointmentTime(), consultation.getQueueType(), consultation.getStatus());
         }
+        System.out.println("================================================================================================================");
         
         System.out.print("Select consultation to change (1-" + allConsultations.size() + "): ");
         int choice = scanner.nextInt(); scanner.nextLine();

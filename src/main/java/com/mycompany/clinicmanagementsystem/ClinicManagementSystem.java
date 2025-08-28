@@ -79,7 +79,7 @@ public class ClinicManagementSystem {
                 }
                 case 3 -> {
                     System.out.println("\nStarting Pharmacy Management Module...");
-                    new PharmacyUI(sharedMedicineControl).run();
+                    new PharmacyUI(sharedMedicineControl, sharedTreatmentControl).run();
                 }
                 case 4 -> showSystemOverview();
                 case 0 -> System.out.println("Thank you for using Clinic Management System!");
