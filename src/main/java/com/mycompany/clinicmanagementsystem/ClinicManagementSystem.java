@@ -57,7 +57,7 @@ public class ClinicManagementSystem {
 
         do {
             System.out.println("\n" + "=".repeat(50));
-            System.out.println("    CLINIC MANAGEMENT SYSTEM");
+            System.out.println("              CLINIC MANAGEMENT SYSTEM");
             System.out.println("=".repeat(50));
             System.out.println("1. Consultation Management Module");
             System.out.println("2. Medical Treatment Management Module");

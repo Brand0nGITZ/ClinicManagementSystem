@@ -55,6 +55,8 @@ public class ConsultationManagement {
     // Check doctor availability (max 2 consultations per doctor)
     public boolean isDoctorAvailable(String doctorId) {
         int patientCount = 0;
+        
+        // Check regular consultations (walk-in and emergency)
         for (int i = 0; i < consultationList.size(); i++) {
             Consultation consultation = consultationList.get(i);
             if (consultation.getDoctorId().equals(doctorId) && 
@@ -64,6 +66,18 @@ public class ConsultationManagement {
                 patientCount++;
             }
         }
+        
+        // Check scheduled consultations
+        for (int i = 0; i < scheduledConsultations.size(); i++) {
+            Consultation consultation = scheduledConsultations.get(i);
+            if (consultation.getDoctorId().equals(doctorId) && 
+                !consultation.getStatus().equals("CANCELLED") &&
+                !consultation.getStatus().equals("CONSULTED") &&
+                !consultation.getStatus().equals("COMPLETED")) {
+                patientCount++;
+            }
+        }
+        
         return patientCount < 2;
     }
 
@@ -73,8 +87,23 @@ public class ConsultationManagement {
     public String assignDoctor() {
         int doctor1Count = 0, doctor2Count = 0;
         
+        // Count regular consultations (walk-in and emergency)
         for (int i = 0; i < consultationList.size(); i++) {
             Consultation consultation = consultationList.get(i);
+            if (!consultation.getStatus().equals("CANCELLED") && 
+                !consultation.getStatus().equals("CONSULTED") &&
+                !consultation.getStatus().equals("COMPLETED")) {
+                if (consultation.getDoctorId().equals("D001")) {
+                    doctor1Count++;
+                } else if (consultation.getDoctorId().equals("D002")) {
+                    doctor2Count++;
+                }
+            }
+        }
+        
+        // Count scheduled consultations
+        for (int i = 0; i < scheduledConsultations.size(); i++) {
+            Consultation consultation = scheduledConsultations.get(i);
             if (!consultation.getStatus().equals("CANCELLED") && 
                 !consultation.getStatus().equals("CONSULTED") &&
                 !consultation.getStatus().equals("COMPLETED")) {
@@ -295,16 +324,21 @@ public class ConsultationManagement {
             return scheduledPatient;
         }
         
-        // Finally, check walk-in patients
+        // Finally, check walk-in patients (earliest time first)
+        Consultation earliestWalkIn = null;
+        String earliestTime = "17:30"; // Default to after clinic hours
+        
         for (int i = 0; i < consultationList.size(); i++) {
             Consultation consultation = consultationList.get(i);
             if (consultation.getStatus().equals("WAITING") && 
-                consultation.getQueueType().equalsIgnoreCase("WALK_IN")) {
-                return consultation;
+                consultation.getQueueType().equalsIgnoreCase("WALK_IN") &&
+                consultation.getAppointmentTime().compareTo(earliestTime) < 0) {
+                earliestWalkIn = consultation;
+                earliestTime = consultation.getAppointmentTime();
             }
         }
         
-        return null;
+        return earliestWalkIn;
     }
     
     // Check if scheduled appointment is due (previous slot completed)
@@ -316,14 +350,15 @@ public class ConsultationManagement {
                 String appointmentTime = scheduled.getAppointmentTime();
                 String previousSlot = getPreviousTimeSlot(appointmentTime);
                 
-                // Check if previous slot is completed
-                if (isPreviousSlotCompleted(previousSlot, scheduled.getDoctorId())) {
+                // Check if previous slot is completed AND it's time for the appointment
+                if (isPreviousSlotCompleted(previousSlot, scheduled.getDoctorId()) && 
+                    isTimeForScheduledAppointment(appointmentTime)) {
                     System.out.println("Scheduled appointment due: " + scheduled.getPatientName() + 
                                      " at " + appointmentTime + " with Dr. " + scheduled.getDoctorName());
                     return scheduled;
                 } else {
-                    System.out.println("⏳ Scheduled appointment waiting: " + scheduled.getPatientName() + 
-                                     " at " + appointmentTime + " (previous slot not completed)");
+                    System.out.println("Scheduled appointment waiting: " + scheduled.getPatientName() + 
+                                     " at " + appointmentTime + " (not yet time for appointment)");
                 }
             }
         }
@@ -370,6 +405,39 @@ public class ConsultationManagement {
         
         // If no consultation found for previous slot, consider it available
         return true;
+    }
+    
+    // Check if it's time for a scheduled appointment
+    private boolean isTimeForScheduledAppointment(String appointmentTime) {
+        // For now, we'll use a simple approach: check if there are no earlier walk-in/emergency patients
+        // This ensures scheduled patients only get priority when it's actually their time
+        
+        // Get the current "clinic time" based on the earliest waiting patient
+        String currentClinicTime = getCurrentClinicTime();
+        
+        // Scheduled appointment should only be prioritized if current time >= appointment time
+        return currentClinicTime.compareTo(appointmentTime) >= 0;
+    }
+    
+    // Get current clinic time based on the earliest waiting patient
+    private String getCurrentClinicTime() {
+        String earliestTime = "17:30"; // Default to after clinic hours
+        
+        // Check walk-in and emergency patients
+        for (int i = 0; i < consultationList.size(); i++) {
+            Consultation consultation = consultationList.get(i);
+            if (consultation.getStatus().equals("WAITING") && 
+                consultation.getAppointmentTime().compareTo(earliestTime) < 0) {
+                earliestTime = consultation.getAppointmentTime();
+            }
+        }
+        
+        // If no waiting patients, return 09:00 (clinic opening time)
+        if (earliestTime.equals("17:30")) {
+            return "09:00";
+        }
+        
+        return earliestTime;
     }
 
     // Creative ADT Usage: Search by Patient ID
@@ -567,6 +635,24 @@ public class ConsultationManagement {
         return "17:00"; // Default to last slot if all are taken
     }
     
+    // Get the next available time slot after a specific time
+    private String getNextAvailableTimeSlotAfter(String afterTime) {
+        String[] timeSlots = {
+            "09:00", "09:30", "10:00", "10:30", "11:00", "11:30",
+            "12:00", "12:30", "13:00", "13:30", "14:00", "14:30",
+            "15:00", "15:30", "16:00", "16:30", "17:00"
+        };
+        
+        // Find the next available slot after the specified time
+        for (String slot : timeSlots) {
+            if (slot.compareTo(afterTime) > 0 && isTimeSlotAvailable(slot)) {
+                return slot;
+            }
+        }
+        
+        return getEarliestAvailableTimeSlot();
+    }
+    
     // Get the next available time slot
     public String getNextAvailableTimeSlot() {
         String[] timeSlots = {
@@ -617,20 +703,20 @@ public class ConsultationManagement {
         }
         
         if (earliestWalkIn != null) {
-            // Swap the time slots
-            String emergencyOriginalTime = emergencyPatient.getAppointmentTime();
+            // Get the walk-in's time slot
             String walkInTime = earliestWalkIn.getAppointmentTime();
             
             // Emergency patient gets the walk-in's time slot
             emergencyPatient.setAppointmentTime(walkInTime);
             
-            // Walk-in patient gets the emergency's original time slot
-            earliestWalkIn.setAppointmentTime(emergencyOriginalTime);
+            // Find the next available time slot for the walk-in patient
+            String nextAvailableSlot = getNextAvailableTimeSlotAfter(walkInTime);
+            earliestWalkIn.setAppointmentTime(nextAvailableSlot);
             
             System.out.println("   Emergency patient " + emergencyPatient.getPatientName() + 
                              " gets " + walkInTime + " (swapped with " + earliestWalkIn.getPatientName() + ")");
             System.out.println("   Walk-in patient " + earliestWalkIn.getPatientName() + 
-                             " moved to " + emergencyOriginalTime);
+                             " moved to " + nextAvailableSlot);
             
             return walkInTime;
         } else {

@@ -137,7 +137,7 @@ public class MedicineMaintenance {
             }
         }
         
-        prescription.append(" | Total Revenue: $").append(String.format("%.2f", totalRevenue));
+                    prescription.append(" | Total Revenue: RM").append(String.format("%.2f", totalRevenue));
         return prescription.toString();
     }
     

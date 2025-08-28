@@ -167,7 +167,7 @@ public class MedicalTreatmentManagement {
 
         // Financial summary
         System.out.println("\nFinancial Summary:");
-        System.out.println("  Total Revenue: $" + String.format("%.2f", calculateTotalRevenue()));
+        System.out.println("  Total Revenue: RM" + String.format("%.2f", calculateTotalRevenue()));
         
         // Most common diagnoses
         System.out.println("\nMost Common Diagnoses:");
@@ -176,7 +176,7 @@ public class MedicalTreatmentManagement {
             ListInterface<MedicalTreatment> diagnosisTreatments = getTreatmentsByDiagnosis(diagnosis);
             if (!diagnosisTreatments.isEmpty()) {
                 System.out.println("  " + diagnosis + ": " + diagnosisTreatments.size() + " treatments");
-                System.out.println("    Revenue: $" + String.format("%.2f", calculateRevenueByDiagnosis(diagnosis)));
+                System.out.println("    Revenue: RM" + String.format("%.2f", calculateRevenueByDiagnosis(diagnosis)));
             }
         }
     }
@@ -204,7 +204,7 @@ public class MedicalTreatmentManagement {
             System.out.println("  Date: " + treatment.getTreatmentDate());
             System.out.println("  Diagnosis: " + treatment.getDiagnosis());
             System.out.println("  Status: " + treatment.getStatus());
-            System.out.println("  Cost: $" + String.format("%.2f", treatment.getCost()));
+            System.out.println("  Cost: RM" + String.format("%.2f", treatment.getCost()));
             System.out.println("  Prescription: " + treatment.getPrescription());
             
             totalCost += treatment.getCost();
@@ -214,7 +214,7 @@ public class MedicalTreatmentManagement {
         }
 
         System.out.println("\nSummary:");
-        System.out.println("  Total Cost: $" + String.format("%.2f", totalCost));
+        System.out.println("  Total Cost: RM" + String.format("%.2f", totalCost));
         System.out.println("  Completed Treatments: " + completedTreatments);
         System.out.println("  Pending Treatments: " + (patientHistory.size() - completedTreatments));
     }

@@ -5,6 +5,8 @@
 package ADT;
 
 import java.util.Random;
+import ADT.MyIterator;
+import ADT.MyListIterator;
 
 /**
  * @author yapji
@@ -494,5 +496,231 @@ public class MyArrayList<T> implements ListInterface<T> {
         
         return sb.toString();
     }
+    
+    // === ITERATOR IMPLEMENTATION ===
+    
+    /**
+     * Returns a MyIterator for forward iteration
+     * @return MyIterator for forward iteration
+     */
+    @Override
+    public MyIterator iterator() {
+        return new MyIterator();
+    }
+    
+    /**
+     * Returns a MyListIterator for this list
+     * @return MyListIterator for bidirectional iteration
+     */
+    @Override
+    public MyListIterator listIterator() {
+        return new MyListIterator();
+    }
+    
+    /**
+     * Returns a MyListIterator starting from the specified index
+     * @param index starting position for the iterator
+     * @return MyListIterator starting from the specified index
+     * @throws IndexOutOfBoundsException if index is out of bounds
+     */
+    @Override
+    public MyListIterator listIterator(int index) {
+        if (index < 0 || index > size) {
+            throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + size);
+        }
+        return new MyListIterator(index);
+    }
+    
+    /**
+     * Simple Iterator implementation for forward iteration
+     */
+    private class MyIterator implements ADT.MyIterator<T> {
+        private int cursor = 0;
+        private int lastReturned = -1;
+        private int expectedModCount = MyArrayList.this.size;
+        
+        @Override
+        public boolean hasNext() {
+            return cursor < size;
+        }
+        
+        @Override
+        public T next() {
+            checkForComodification();
+            if (!hasNext()) {
+                throw new IllegalStateException("No more elements");
+            }
+            lastReturned = cursor;
+            return array[cursor++];
+        }
+        
+        @Override
+        public void remove() {
+            checkForComodification();
+            if (lastReturned < 0) {
+                throw new IllegalStateException("No element to remove");
+            }
+            
+            // Remove the element at lastReturned position
+            for (int i = lastReturned; i < size - 1; i++) {
+                array[i] = array[i + 1];
+            }
+            array[size - 1] = null;
+            size--;
+            
+            // Update cursor position
+            if (lastReturned < cursor) {
+                cursor--;
+            }
+            lastReturned = -1;
+            expectedModCount = MyArrayList.this.size;
+        }
+        
+        private void checkForComodification() {
+            if (expectedModCount != MyArrayList.this.size) {
+                throw new IllegalStateException("Concurrent modification detected");
+            }
+        }
+    }
+    
+    /**
+     * Custom ListIterator implementation for MyArrayList
+     */
+    private class MyListIterator implements ADT.MyListIterator<T> {
+        private int cursor;           // Position of next element to return
+        private int lastReturned;     // Position of last element returned (-1 if none)
+        private int expectedModCount; // Expected modification count for fail-fast
+        
+        /**
+         * Constructor for iterator starting at beginning
+         */
+        public MyListIterator() {
+            this.cursor = 0;
+            this.lastReturned = -1;
+            this.expectedModCount = MyArrayList.this.size; // Simple mod count
+        }
+        
+        /**
+         * Constructor for iterator starting at specified index
+         */
+        public MyListIterator(int index) {
+            this.cursor = index;
+            this.lastReturned = -1;
+            this.expectedModCount = MyArrayList.this.size; // Simple mod count
+        }
+        
+        @Override
+        public boolean hasNext() {
+            return cursor < size;
+        }
+        
+        @Override
+        public T next() {
+            checkForComodification();
+            if (!hasNext()) {
+                throw new IllegalStateException("No more elements");
+            }
+            lastReturned = cursor;
+            return array[cursor++];
+        }
+        
+        @Override
+        public boolean hasPrevious() {
+            return cursor > 0;
+        }
+        
+        @Override
+        public T previous() {
+            checkForComodification();
+            if (!hasPrevious()) {
+                throw new IllegalStateException("No more elements");
+            }
+            cursor--;
+            lastReturned = cursor;
+            return array[cursor];
+        }
+        
+        @Override
+        public int nextIndex() {
+            return cursor;
+        }
+        
+        @Override
+        public int previousIndex() {
+            return cursor - 1;
+        }
+        
+        @Override
+        public void remove() {
+            checkForComodification();
+            if (lastReturned < 0) {
+                throw new IllegalStateException("No element to remove");
+            }
+            
+            // Remove the element at lastReturned position
+            for (int i = lastReturned; i < size - 1; i++) {
+                array[i] = array[i + 1];
+            }
+            array[size - 1] = null;
+            size--;
+            
+            // Update cursor position
+            if (lastReturned < cursor) {
+                cursor--;
+            }
+            lastReturned = -1;
+            expectedModCount = MyArrayList.this.size; // Update mod count
+        }
+        
+        @Override
+        public void set(T e) {
+            checkForComodification();
+            if (lastReturned < 0) {
+                throw new IllegalStateException("No element to set");
+            }
+            
+            // Update frequency map (remove old item, add new item)
+            T oldItem = array[lastReturned];
+            updateFrequencyMap(oldItem, -1);
+            updateFrequencyMap(e, 1);
+            
+            array[lastReturned] = e;
+        }
+        
+        @Override
+        public void add(T e) {
+            checkForComodification();
+            
+            // Insert element at current cursor position
+            if (size == array.length) {
+                expand();
+            }
+            
+            // Shift elements to make room
+            for (int i = size; i > cursor; i--) {
+                array[i] = array[i - 1];
+            }
+            
+            array[cursor] = e;
+            size++;
+            cursor++;
+            lastReturned = -1;
+            expectedModCount = MyArrayList.this.size; // Update mod count
+            
+            // Update frequency map
+            updateFrequencyMap(e, 1);
+        }
+        
+        /**
+         * Check for concurrent modification
+         */
+        private void checkForComodification() {
+            if (expectedModCount != MyArrayList.this.size) {
+                throw new IllegalStateException("Concurrent modification detected");
+            }
+        }
+    }
+    
+
 }
 

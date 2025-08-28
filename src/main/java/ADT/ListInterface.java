@@ -51,6 +51,11 @@ public interface ListInterface <T> {
     void validateItem(T item);           // Validate item before adding
     boolean hasDuplicates();             // Check for duplicate items
     
+    // === ITERATOR OPERATIONS (Custom Implementation) ===
+    MyIterator iterator();            // Get iterator for forward iteration
+    MyListIterator listIterator();    // Get list iterator for bidirectional iteration
+    MyListIterator listIterator(int index); // Get list iterator starting from index
+    
     // === FUNCTIONAL INTERFACES FOR UNIVERSAL USE ===
     @FunctionalInterface
     interface Predicate<T> {

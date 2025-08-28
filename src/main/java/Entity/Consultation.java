@@ -58,8 +58,8 @@ public class Consultation {
 
     @Override
     public String toString() {
-        return String.format("ID: %s | Patient: %s | Doctor: %s | Time: %s | Type: %s | Status: %s | Symptoms: %s | Diagnosis: %s",    
-                consultationId, patientId, doctorName, appointmentTime, queueType, status, symptoms, diagnosis);
+        return String.format("ID: %s | Patient: %s (%s) | Doctor: %s (%s) | Time: %s | Type: %s | Status: %s | Symptoms: %s | Diagnosis: %s",    
+                consultationId, patientId, patientName, doctorId, doctorName, appointmentTime, queueType, status, symptoms, diagnosis);
     }
 
     @Override
