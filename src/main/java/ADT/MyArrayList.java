@@ -7,8 +7,6 @@ package ADT;
 import java.util.Random;
 
 /**
- * Universal Reusable ArrayList - Can be used by ANY system
- * Banking, E-commerce, Education, Healthcare, Gaming, etc.
  * @author yapji
  * @param <T>
  */
@@ -49,6 +47,136 @@ public class MyArrayList<T> implements ListInterface<T> {
         }
         array[size++] = item;
         updateFrequencyMap(item, 1);
+    }
+    
+    // === HASHMAP-LIKE FUNCTIONALITY ===
+    // Key-Value pair structure for HashMap-like operations
+    public static class KeyValuePair<K, V> {
+        private K key;
+        private V value;
+        
+        public KeyValuePair(K key, V value) {
+            this.key = key;
+            this.value = value;
+        }
+        
+        public K getKey() { 
+            return key; 
+        }
+
+        public V getValue() { 
+            return value; 
+        }
+        @SuppressWarnings("unchecked")
+
+
+        public void setValue(Object value) { 
+            this.value = (V) value; 
+        }
+        
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) return true;
+            if (!(obj instanceof KeyValuePair)) return false;
+            KeyValuePair<?, ?> other = (KeyValuePair<?, ?>) obj;
+            return key.equals(other.key);
+        }
+        
+        @Override
+        public String toString() {
+            return key + " -> " + value;
+        }
+    }
+    
+    // HashMap-like operations using KeyValuePair
+    public <K, V> void put(K key, V value) {
+        KeyValuePair<K, V> pair = new KeyValuePair<>(key, value);
+        
+        // Check if key already exists
+        for (int i = 0; i < size; i++) {
+            if (array[i] instanceof KeyValuePair) {
+                KeyValuePair<?, ?> existingPair = (KeyValuePair<?, ?>) array[i];
+                if (existingPair.getKey().equals(key)) {
+                    // Update existing value
+                    existingPair.setValue((Object) value);
+                    return;
+                }
+            }
+        }
+        
+        // Add new key-value pair
+        add((T) pair);
+    }
+    
+    public <K, V> V get(K key) {
+        for (int i = 0; i < size; i++) {
+            if (array[i] instanceof KeyValuePair) {
+                KeyValuePair<?, ?> pair = (KeyValuePair<?, ?>) array[i];
+                if (pair.getKey().equals(key)) {
+                    return (V) pair.getValue();
+                }
+            }
+        }
+        return null;
+    }
+    
+    public <K> boolean containsKey(K key) {
+        for (int i = 0; i < size; i++) {
+            if (array[i] instanceof KeyValuePair) {
+                KeyValuePair<?, ?> pair = (KeyValuePair<?, ?>) array[i];
+                if (pair.getKey().equals(key)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    
+    public <K> boolean removeByKey(K key) {
+        for (int i = 0; i < size; i++) {
+            if (array[i] instanceof KeyValuePair) {
+                KeyValuePair<?, ?> pair = (KeyValuePair<?, ?>) array[i];
+                if (pair.getKey().equals(key)) {
+                    return remove((T) pair);
+                }
+            }
+        }
+        return false;
+    }
+    
+    // Get all keys
+    public <K> MyArrayList<K> keySet() {
+        MyArrayList<K> keys = new MyArrayList<>();
+        for (int i = 0; i < size; i++) {
+            if (array[i] instanceof KeyValuePair) {
+                KeyValuePair<?, ?> pair = (KeyValuePair<?, ?>) array[i];
+                keys.add((K) pair.getKey());
+            }
+        }
+        return keys;
+    }
+    
+    // Get all values
+    public <V> MyArrayList<V> values() {
+        MyArrayList<V> values = new MyArrayList<>();
+        for (int i = 0; i < size; i++) {
+            if (array[i] instanceof KeyValuePair) {
+                KeyValuePair<?, ?> pair = (KeyValuePair<?, ?>) array[i];
+                values.add((V) pair.getValue());
+            }
+        }
+        return values;
+    }
+    
+    // Get all entries (key-value pairs)
+    public <K, V> MyArrayList<KeyValuePair<K, V>> entrySet() {
+        MyArrayList<KeyValuePair<K, V>> entries = new MyArrayList<>();
+        for (int i = 0; i < size; i++) {
+            if (array[i] instanceof KeyValuePair) {
+                entries.add((KeyValuePair<K, V>) array[i]);
+            }
+        }
+        return entries;
     }
     
     @Override

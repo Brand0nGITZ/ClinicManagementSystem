@@ -6,8 +6,10 @@ package Boundary;
 
 import Control.MedicalTreatmentManagement;
 import Control.ConsultationManagement;
+import Control.MedicineMaintenance;
 import Entity.MedicalTreatment;
 import Entity.Consultation;
+import Entity.Medicine;
 import ADT.ListInterface;
 import ADT.MyArrayList;
 import java.util.Scanner;
@@ -20,10 +22,12 @@ public class MedicalTreatmentUI {
     private final Scanner scanner = new Scanner(System.in);
     private final MedicalTreatmentManagement treatmentControl;
     private final ConsultationManagement consultationControl;
+    private final MedicineMaintenance medicineControl;
 
-    public MedicalTreatmentUI(MedicalTreatmentManagement treatmentControl, ConsultationManagement consultationControl) {
+    public MedicalTreatmentUI(MedicalTreatmentManagement treatmentControl, ConsultationManagement consultationControl, MedicineMaintenance medicineControl) {
         this.treatmentControl = treatmentControl;
         this.consultationControl = consultationControl;
+        this.medicineControl = medicineControl;
     }
 
     public void run() {
@@ -56,60 +60,38 @@ public class MedicalTreatmentUI {
     }
 
     private void addNewTreatment() {
-        System.out.println("\n=== Add New Treatment ===");
+        System.out.println("\n=== Add New Treatment (Automatic Priority) ===");
         
-        // Get consultations that need treatments (completed consultations)
-        ListInterface<Consultation> completedConsultations = getConsultationsNeedingTreatment();
+        // Get the highest priority patient automatically
+        Consultation nextPatient = consultationControl.getNextPatient();
         
-        if (completedConsultations.isEmpty()) {
-            System.out.println("❌ No consultations found that need treatments.");
-            System.out.println("   (Only completed consultations can have treatments)");
+        if (nextPatient == null) {
+            System.out.println("No patients waiting for treatment.");
             return;
         }
-        
-        // Show available consultations
-        System.out.println("Select Consultation to Create Treatment For:");
-        for (int i = 0; i < completedConsultations.size(); i++) {
-            Consultation consultation = completedConsultations.get(i);
-            System.out.printf("%d. %s - Patient: %s - Diagnosis: %s - Dr. %s%n", 
-                (i + 1), consultation.getConsultationId(), consultation.getPatientId(), 
-                consultation.getDiagnosis(), consultation.getDoctorName());
-        }
-        
-        System.out.print("Enter choice (1-" + completedConsultations.size() + "): ");
-        int consultationChoice = scanner.nextInt(); scanner.nextLine();
-        
-        if (consultationChoice < 1 || consultationChoice > completedConsultations.size()) {
-            System.out.println("❌ Invalid consultation selection!");
-            return;
-        }
-        
-        // Get selected consultation
-        Consultation selectedConsultation = completedConsultations.get(consultationChoice - 1);
         
         // Check if treatment already exists for this consultation
-        if (treatmentExistsForConsultation(selectedConsultation.getConsultationId())) {
-            System.out.println("❌ Treatment already exists for consultation " + selectedConsultation.getConsultationId());
+        if (treatmentExistsForConsultation(nextPatient.getConsultationId())) {
+            System.out.println("Treatment already exists for consultation " + nextPatient.getConsultationId());
             return;
         }
         
         // Auto-fill data from consultation
-        String consultationId = selectedConsultation.getConsultationId();
-        String patientId = selectedConsultation.getPatientId();
-        String doctorId = selectedConsultation.getDoctorId();
-        String diagnosis = selectedConsultation.getDiagnosis();
+        String consultationId = nextPatient.getConsultationId();
+        String patientId = nextPatient.getPatientId();
+        String doctorId = nextPatient.getDoctorId();
+        String diagnosis = nextPatient.getDiagnosis();
         
-        System.out.println("\n📋 Consultation Details:");
-        System.out.println("   Consultation ID: " + consultationId);
-        System.out.println("   Patient ID: " + patientId);
-        System.out.println("   Patient Name: " + selectedConsultation.getPatientName());
-        System.out.println("   Doctor ID: " + doctorId);
-        System.out.println("   Doctor Name: " + selectedConsultation.getDoctorName());
+        System.out.println("\nAUTOMATIC PATIENT SELECTION:");
+        System.out.println("   Priority: " + nextPatient.getQueueType());
+        System.out.println("   Patient: " + nextPatient.getPatientName());
+        System.out.println("   Doctor: " + nextPatient.getDoctorName());
+        System.out.println("   Time Slot: " + nextPatient.getAppointmentTime());
         System.out.println("   Diagnosis: " + diagnosis);
         
         // Suggest prescription based on diagnosis
         String suggestedPrescription = suggestPrescription(diagnosis);
-        System.out.println("\n💊 Suggested Prescription for " + diagnosis + ":");
+        System.out.println("\nSuggested Prescription for " + diagnosis + ":");
         System.out.println("   " + suggestedPrescription);
         
         System.out.print("Enter Prescription Details (or press Enter to use suggestion): ");
@@ -117,32 +99,32 @@ public class MedicalTreatmentUI {
         
         if (prescription.trim().isEmpty()) {
             prescription = suggestedPrescription;
-            System.out.println("✅ Using suggested prescription: " + prescription);
+            System.out.println("Using suggested prescription: " + prescription);
         }
         
         // Auto-calculate cost based on diagnosis
         double suggestedCost = calculateSuggestedCost(diagnosis);
-        System.out.println("\n💰 Suggested Cost: $" + String.format("%.2f", suggestedCost));
+        System.out.println("\nSuggested Cost: RM" + String.format("%.2f", suggestedCost));
         
-        System.out.print("Enter Treatment Cost (or press Enter to use suggestion): $");
+        System.out.print("Enter Treatment Cost (or press Enter to use suggestion): RM");
         String costInput = scanner.nextLine();
         double cost;
         
         if (costInput.trim().isEmpty()) {
             cost = suggestedCost;
-            System.out.println("✅ Using suggested cost: $" + String.format("%.2f", cost));
+            System.out.println("Using suggested cost: RM" + String.format("%.2f", cost));
         } else {
             try {
                 cost = Double.parseDouble(costInput);
             } catch (NumberFormatException e) {
-                System.out.println("❌ Invalid cost format. Using suggested cost.");
+                System.out.println("Invalid cost format. Using suggested cost.");
                 cost = suggestedCost;
             }
         }
         
         // Auto-generate treatment date (today)
         String treatmentDate = java.time.LocalDate.now().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-        System.out.println("📅 Treatment Date: " + treatmentDate);
+        System.out.println("Treatment Date: " + treatmentDate);
         
         // Auto-generate treatment ID
         String treatmentId = treatmentControl.generateTreatmentId();
@@ -152,26 +134,98 @@ public class MedicalTreatmentUI {
                                                         diagnosis, prescription, treatmentDate, cost);
         treatmentControl.addTreatment(treatment);
         
-        System.out.println("\n✅ Treatment added successfully!");
-        System.out.println("   Treatment ID: " + treatmentId);
-        System.out.println("   📋 Prescription ready for pharmacy dispensing");
-        System.out.println("   💰 Cost: $" + String.format("%.2f", cost));
-    }
-
-    // Get consultations that need treatments (completed consultations)
-    private ListInterface<Consultation> getConsultationsNeedingTreatment() {
-        ListInterface<Consultation> allConsultations = consultationControl.getAllConsultations();
-        ListInterface<Consultation> completedConsultations = new MyArrayList<>();
+        // Automatically change treatment status to COMPLETED for revenue tracking
+        boolean treatmentStatusUpdated = treatmentControl.updateTreatmentStatus(treatmentId, "COMPLETED");
         
-        for (int i = 0; i < allConsultations.size(); i++) {
-            Consultation consultation = allConsultations.get(i);
-            if (consultation.getStatus().equals("COMPLETED")) {
-                completedConsultations.add(consultation);
+        // Automatically change consultation status to COMPLETED
+        boolean consultationStatusUpdated = consultationControl.updateConsultationStatus(consultationId, "COMPLETED");
+        
+        System.out.println("\nTreatment added successfully!");
+        System.out.println("   Treatment ID: " + treatmentId);
+        System.out.println("   Prescription ready for pharmacy dispensing");
+        System.out.println("   Cost: RM" + String.format("%.2f", cost));
+        
+        if (treatmentStatusUpdated) {
+            System.out.println("   Treatment status automatically changed to COMPLETED");
+            System.out.println("   Revenue immediately recorded: RM" + String.format("%.2f", cost));
+        }
+        
+        if (consultationStatusUpdated) {
+            System.out.println("   Consultation status automatically changed to COMPLETED");
+            System.out.println("   Doctor " + nextPatient.getDoctorName() + " is now available for new patients");
+            
+            // Show next patient in queue
+            Consultation nextInQueue = consultationControl.getNextPatient();
+            if (nextInQueue != null) {
+                System.out.println("   Next patient: " + nextInQueue.getPatientName() + " (" + nextInQueue.getQueueType() + ")");
             }
         }
         
-        return completedConsultations;
+        // Automatically deduct prescribed medicines from inventory
+        deductPrescribedMedicines(diagnosis);
     }
+    
+    // Deduct prescribed medicines from inventory
+    private void deductPrescribedMedicines(String diagnosis) {
+        System.out.println("\nAUTOMATIC MEDICINE DISPENSING:");
+        System.out.println("-".repeat(40));
+        
+        // Get medicines for this diagnosis
+        ListInterface<Medicine> medicines = medicineControl.getMedicinesForDiagnosis(diagnosis);
+        
+        if (medicines.isEmpty()) {
+            System.out.println("   No specific medicines found for " + diagnosis);
+            return;
+        }
+        
+        double totalDispensedValue = 0.0;
+        
+        for (int i = 0; i < medicines.size(); i++) {
+            Medicine medicine = medicines.get(i);
+            int quantity = calculateQuantityForMedicine(medicine, diagnosis);
+            
+            // Check if we have enough stock
+            if (medicine.getStock() >= quantity) {
+                // Deduct from inventory
+                boolean success = medicineControl.dispenseMedicine(medicine.getMedicineID(), quantity);
+                
+                if (success) {
+                    double medicineValue = medicineControl.calculateRevenueFromMedicine(medicine.getMedicineID(), quantity);
+                    totalDispensedValue += medicineValue;
+                    
+                    System.out.println("   " + medicine.getName() + " - " + quantity + " units dispensed");
+                    System.out.println("      Stock remaining: " + medicine.getStock() + " units");
+                    System.out.println("      Value: RM" + String.format("%.2f", medicineValue));
+                } else {
+                    System.out.println("   Failed to dispense " + medicine.getName());
+                }
+            } else {
+                System.out.println("   Insufficient stock for " + medicine.getName());
+                System.out.println("      Required: " + quantity + " units, Available: " + medicine.getStock() + " units");
+            }
+        }
+        
+        System.out.println("   Total medicine value dispensed: RM" + String.format("%.2f", totalDispensedValue));
+        System.out.println("   Inventory updated for " + diagnosis + " treatment");
+    }
+    
+    // Calculate quantity for medicine (same logic as MedicineMaintenance)
+    private int calculateQuantityForMedicine(Medicine medicine, String diagnosis) {
+        String category = medicine.getCategory();
+        return switch (category.toLowerCase()) {
+            case "painkiller" -> 20;
+            case "cold medicine" -> 2;
+            case "digestive" -> 30;
+            case "topical" -> 1;
+            case "neurological" -> 10;
+            case "vitamin" -> 30;
+            case "antibiotic" -> 14;
+            case "musculoskeletal" -> 15;
+            default -> 20;
+        };
+    }
+
+
 
     // Check if treatment already exists for consultation
     private boolean treatmentExistsForConsultation(String consultationId) {
@@ -185,37 +239,26 @@ public class MedicalTreatmentUI {
         return false;
     }
 
-    // Suggest prescription based on diagnosis
+    // Suggest prescription based on diagnosis with quantity and revenue
     private String suggestPrescription(String diagnosis) {
-        return switch (diagnosis.toLowerCase()) {
-            case "fever" -> "Paracetamol 500mg - 2 tablets every 6 hours for 3 days";
-            case "common cold" -> "Decongestant syrup - 10ml every 8 hours for 5 days";
-            case "headache" -> "Ibuprofen 400mg - 1 tablet every 8 hours as needed";
-            case "gastritis" -> "Antacid tablets - 2 tablets after meals for 7 days";
-            case "pain management" -> "Pain relief cream - Apply 3 times daily";
-            case "dizziness" -> "Anti-vertigo medication - 1 tablet daily for 3 days";
-            case "nausea" -> "Anti-nausea tablets - 1 tablet before meals";
-            case "fatigue" -> "Multivitamin supplements - 1 tablet daily";
-            case "sore throat" -> "Throat lozenges - 1 every 4 hours";
-            case "back pain" -> "Muscle relaxant - 1 tablet at night for 5 days";
-            default -> "General medication - Follow doctor's instructions";
-        };
+        // Use the pharmacy control to get prescription with quantity and revenue
+        return medicineControl.suggestPrescriptionWithQuantity(diagnosis);
     }
 
-    // Calculate suggested cost based on diagnosis
+    // Calculate suggested cost based on diagnosis (in RM)
     private double calculateSuggestedCost(String diagnosis) {
         return switch (diagnosis.toLowerCase()) {
-            case "fever" -> 25.00;
-            case "common cold" -> 30.00;
-            case "headache" -> 20.00;
-            case "gastritis" -> 35.00;
-            case "pain management" -> 40.00;
-            case "dizziness" -> 45.00;
-            case "nausea" -> 25.00;
-            case "fatigue" -> 50.00;
-            case "sore throat" -> 15.00;
-            case "back pain" -> 60.00;
-            default -> 30.00;
+            case "fever" -> 15.00;
+            case "common cold" -> 18.00;
+            case "headache" -> 12.00;
+            case "gastritis" -> 20.00;
+            case "pain management" -> 25.00;
+            case "dizziness" -> 30.00;
+            case "nausea" -> 15.00;
+            case "fatigue" -> 35.00;
+            case "sore throat" -> 10.00;
+            case "back pain" -> 40.00;
+            default -> 18.00;
         };
     }
 
@@ -238,7 +281,7 @@ public class MedicalTreatmentUI {
             System.out.println("  Date: " + treatment.getTreatmentDate());
             System.out.println("  Diagnosis: " + treatment.getDiagnosis());
             System.out.println("  Status: " + treatment.getStatus());
-            System.out.println("  Cost: $" + String.format("%.2f", treatment.getCost()));
+            System.out.println("  Cost: RM" + String.format("%.2f", treatment.getCost()));
             System.out.println("  Prescription: " + treatment.getPrescription());
         }
     }
@@ -313,12 +356,12 @@ public class MedicalTreatmentUI {
         
         boolean success = treatmentControl.updateTreatmentStatus(treatmentId, newStatus);
         if (success) {
-            System.out.println("✅ Status updated successfully!");
+            System.out.println("Status updated successfully!");
             if (newStatus.equals("COMPLETED")) {
-                System.out.println("💰 Treatment completed - Revenue recorded");
+                System.out.println("Treatment completed - Revenue recorded");
             }
         } else {
-            System.out.println("❌ Treatment not found.");
+            System.out.println("Treatment not found.");
         }
     }
 
@@ -331,7 +374,7 @@ public class MedicalTreatmentUI {
         
         switch (reportChoice) {
             case 1 -> {
-                System.out.println("\n📊 Generating General Treatment Report...");
+                System.out.println("\nGenerating General Treatment Report...");
                 treatmentControl.generateTreatmentReport();
             }
             case 2 -> {

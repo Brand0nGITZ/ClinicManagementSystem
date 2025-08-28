@@ -18,7 +18,7 @@ public class Consultation {
     private String symptoms;
     private String diagnosis;
     private String queueType; // WALK_IN, SCHEDULED, EMERGENCY
-    private String status; // WAITING, COMPLETED, CANCELLED, NO_SHOW
+    private String status; // WAITING, CONSULTED, COMPLETED, CANCELLED, NO_SHOW
     private int estimatedWaitingMinutes;
 
     public Consultation(String consultationId, String patientId, String patientName, String doctorId, String doctorName,
@@ -53,6 +53,8 @@ public class Consultation {
     public void setStatus(String status) { this.status = status; }
     public void setDiagnosis(String diagnosis) { this.diagnosis = diagnosis; }
     public void setEstimatedWaitingMinutes(int minutes) { this.estimatedWaitingMinutes = minutes; }
+    public void setQueueType(String queueType) { this.queueType = queueType; }
+    public void setAppointmentTime(String appointmentTime) { this.appointmentTime = appointmentTime; }
 
     @Override
     public String toString() {

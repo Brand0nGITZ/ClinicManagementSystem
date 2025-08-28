@@ -51,7 +51,7 @@ public class MedicalTreatment {
 
     @Override
     public String toString() {
-        return String.format("ID: %s | Consultation: %s | Patient: %s | Doctor: %s | Diagnosis: %s | Status: %s | Cost: $%.2f",    
+        return String.format("ID: %s | Consultation: %s | Patient: %s | Doctor: %s | Diagnosis: %s | Status: %s | Cost: RM%.2f",    
                 treatmentId, consultationId, patientId, doctorId, diagnosis, status, cost);
     }
 

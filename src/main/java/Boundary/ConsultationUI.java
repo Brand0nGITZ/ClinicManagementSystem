@@ -5,9 +5,7 @@
 package Boundary;
 
 import Control.ConsultationManagement;
-import Control.MedicalTreatmentManagement;
 import Entity.Consultation;
-import Entity.MedicalTreatment;
 import Entity.Patient;
 import ADT.ListInterface;
 import ADT.MyArrayList;
@@ -22,13 +20,11 @@ import java.util.Random;
 public class ConsultationUI {
     private final Scanner scanner = new Scanner(System.in);
     private final ConsultationManagement consultationControl;
-    private final MedicalTreatmentManagement treatmentControl;
     private final MyArrayList<Patient> patients;
     private final Random random = new Random();
 
-    public ConsultationUI(ConsultationManagement consultationControl, MedicalTreatmentManagement treatmentControl) {
+    public ConsultationUI(ConsultationManagement consultationControl) {
         this.consultationControl = consultationControl;
-        this.treatmentControl = treatmentControl;
         this.patients = new MyArrayList<>();
         generatePatients();
     }
@@ -41,12 +37,13 @@ public class ConsultationUI {
             System.out.println("2. Add Consultation");
             System.out.println("3. View All Consultations");
             System.out.println("4. Get Next Patient");
-            System.out.println("5. View Queue by Type");
-            System.out.println("6. Search by Patient ID");
-            System.out.println("7. Search by Doctor ID");
-            System.out.println("8. Search by Symptoms");
-            System.out.println("9. Remove Consultation");
-            System.out.println("10. Generate Queue Report");
+            System.out.println("5. Change Consultation Status");
+            System.out.println("6. View Queue by Type");
+            System.out.println("7. Search by Patient ID");
+            System.out.println("8. Search by Doctor ID");
+            System.out.println("9. Search by Symptoms");
+            System.out.println("10. Remove Consultation");
+            System.out.println("11. Generate Queue Report");
             System.out.println("0. Exit");
             System.out.print("Enter choice: ");
             choice = scanner.nextInt(); scanner.nextLine();
@@ -56,12 +53,13 @@ public class ConsultationUI {
                 case 2 -> addConsultation();
                 case 3 -> viewAllConsultations();
                 case 4 -> getNextPatient();
-                case 5 -> viewQueueByType();
-                case 6 -> searchByPatient();
-                case 7 -> searchByDoctor();
-                case 8 -> searchBySymptoms();
-                case 9 -> removeConsultation();
-                case 10 -> generateReport();
+                case 5 -> changeConsultationStatus();
+                case 6 -> viewQueueByType();
+                case 7 -> searchByPatient();
+                case 8 -> searchByDoctor();
+                case 9 -> searchBySymptoms();
+                case 10 -> removeConsultation();
+                case 11 -> generateReport();
                 case 0 -> System.out.println("Exiting...");
                 default -> System.out.println("Invalid choice.");
             }
@@ -77,7 +75,7 @@ public class ConsultationUI {
 
     private void startConsultation() {
         if (patients.isEmpty()) {
-            System.out.println("❌ No patients available for consultation!");
+            System.out.println("No patients available for consultation!");
             return;
         }
 
@@ -87,7 +85,7 @@ public class ConsultationUI {
         Patient nextPatient = patients.get(0);
         String patientId = nextPatient.getId();
         
-        System.out.println("👤 Next Patient: " + nextPatient.getName() + " (ID: " + patientId + ")");
+        System.out.println("Next Patient: " + nextPatient.getName() + " (ID: " + patientId + ")");
         
         // Generate patient dialogue
         String patientDialogue = generatePatientDialogue();
@@ -96,11 +94,11 @@ public class ConsultationUI {
         // Auto-assign doctor
         String doctorId = consultationControl.assignDoctor();
         String doctorName = getDoctorName(doctorId);
-        System.out.println("👨‍⚕️ Auto-assigned Doctor: " + doctorName + " (" + doctorId + ")");
+        System.out.println("Auto-assigned Doctor: " + doctorName + " (" + doctorId + ")");
         
         // Check if doctor is available
         if (!consultationControl.isDoctorAvailable(doctorId)) {
-            System.out.println("❌ All doctors are currently at full capacity (2 patients each)!");
+            System.out.println("All doctors are currently at full capacity (2 patients each)!");
             System.out.println("Please wait for a consultation to be completed.");
             return;
         }
@@ -108,18 +106,18 @@ public class ConsultationUI {
         // Get next available time slot
         String[] availableSlots = consultationControl.getAvailableTimeSlots();
         if (availableSlots.length == 0) {
-            System.out.println("❌ No available time slots today!");
+            System.out.println("No available time slots today!");
             System.out.println("All slots are booked.");
             return;
         }
         
         // Auto-assign the first available time slot
         String appointmentTime = availableSlots[0];
-        System.out.println("⏰ Auto-assigned Time Slot: " + appointmentTime);
+        System.out.println("Auto-assigned Time Slot: " + appointmentTime);
         
         // Auto-assign queue type based on time (morning = walk-in, afternoon = scheduled)
         String queueType = appointmentTime.compareTo("12:00") < 0 ? "WALK_IN" : "SCHEDULED";
-        System.out.println("📋 Queue Type: " + queueType);
+        System.out.println("Queue Type: " + queueType);
         
         // Extract symptoms from patient dialogue
         String symptoms = extractSymptomsFromDialogue(patientDialogue);
@@ -137,34 +135,19 @@ public class ConsultationUI {
         // Remove patient from available list (FIFO - first in, first out)
         patients.remove(nextPatient);
         
-        System.out.println("\n✅ Consultation Started Successfully!");
+        System.out.println("\nConsultation Started Successfully!");
         System.out.println("   Consultation ID: " + consultationId);
         System.out.println("   Symptoms: " + symptoms);
         System.out.println("   Auto-diagnosis: " + consultation.getDiagnosis());
         System.out.println("   Estimated wait: " + consultation.getEstimatedWaitingMinutes() + " minutes");
         
-        // Automatically complete the consultation
-        System.out.println("\n🩺 Conducting consultation...");
-        consultationControl.updateConsultationStatus(consultationId, "COMPLETED");
-        System.out.println("✅ Consultation completed!");
-        
-        // Prompt for treatment creation
-        System.out.println("\n💊 Would you like to create a treatment for this patient?");
-        System.out.println("1. Yes - Create treatment now");
-        System.out.println("2. No - Skip for now");
-        System.out.print("Enter choice: ");
-        int treatmentChoice = scanner.nextInt(); scanner.nextLine();
-        
-        if (treatmentChoice == 1) {
-            createTreatmentForConsultation(consultation);
-        } else {
-            System.out.println("⏭️ Treatment creation skipped. You can create it later from Medical Treatment module.");
-        }
+        System.out.println("\nConsultation added to queue successfully!");
+        System.out.println("   Status: WAITING (ready for consultation)");
     }
 
     private void addConsultation() {
         if (patients.isEmpty()) {
-            System.out.println("❌ No patients available for consultation!");
+            System.out.println("No patients available for consultation!");
             return;
         }
 
@@ -181,7 +164,7 @@ public class ConsultationUI {
         int patientChoice = scanner.nextInt(); scanner.nextLine();
         
         if (patientChoice < 1 || patientChoice > patients.size()) {
-            System.out.println("❌ Invalid patient selection!");
+            System.out.println("Invalid patient selection!");
             return;
         }
         
@@ -198,11 +181,59 @@ public class ConsultationUI {
         // Auto-assign doctor
         String doctorId = consultationControl.assignDoctor();
         String doctorName = getDoctorName(doctorId);
-        System.out.println("👨‍⚕️ Auto-assigned Doctor: " + doctorName + " (" + doctorId + ")");
+        System.out.println("Auto-assigned Doctor: " + doctorName + " (" + doctorId + ")");
         
-        // Check if doctor is available
+        // Ask for queue type FIRST
+        System.out.println("\nSelect Queue Type:");
+        System.out.println("1. Emergency");
+        System.out.println("2. Walk-in");
+        System.out.println("3. Scheduled");
+        System.out.print("Enter choice: ");
+        int queueChoice = scanner.nextInt(); scanner.nextLine();
+        
+        String queueType = switch (queueChoice) {
+            case 1 -> "EMERGENCY";
+            case 2 -> "WALK_IN";
+            case 3 -> "SCHEDULED";
+            default -> "WALK_IN";
+        };
+        
+        // Handle emergency cases immediately
+        if (queueType.equals("EMERGENCY")) {
+            System.out.println("\nEMERGENCY CASE - Immediate Priority!");
+            
+            // Check doctor availability even for emergency cases
+            if (!consultationControl.isDoctorAvailable(doctorId)) {
+                System.out.println("All doctors are currently at full capacity (2 patients each)!");
+                System.out.println("   Emergency case cannot be accommodated at this time.");
+                System.out.println("   Please wait for a consultation to be completed first.");
+                // Return the patient to the list
+                patients.add(selectedPatient);
+                return;
+            }
+            
+            // Extract symptoms from patient dialogue
+            String symptoms = extractSymptomsFromDialogue(patientDialogue);
+            
+            // Auto-generate consultation ID
+            String consultationId = consultationControl.generateConsultationId();
+            String doctorName2 = getDoctorName(doctorId);
+            Consultation consultation = new Consultation(consultationId, patientId, selectedPatient.getName(), doctorId, doctorName2,
+                                                       "17:00", symptoms, queueType); // Temporary time, will be swapped
+            
+            consultationControl.addConsultation(consultation);
+            System.out.println("Emergency consultation added with immediate priority!");
+            System.out.println("   Consultation ID: " + consultationId);
+            System.out.println("   Patient: " + selectedPatient.getName());
+            System.out.println("   Doctor: " + doctorName2);
+            System.out.println("   Status: Emergency priority - time slot will be automatically assigned");
+            System.out.println("   Symptoms extracted: " + symptoms);
+            return;
+        }
+        
+        // For non-emergency cases, check doctor availability and pick time slot
         if (!consultationControl.isDoctorAvailable(doctorId)) {
-            System.out.println("❌ All doctors are currently at full capacity (2 patients each)!");
+            System.out.println("All doctors are currently at full capacity (2 patients each)!");
             System.out.println("Please wait for a consultation to be completed.");
             // Return the patient to the list
             patients.add(selectedPatient);
@@ -212,7 +243,7 @@ public class ConsultationUI {
         // Show available time slots
         String[] availableSlots = consultationControl.getAvailableTimeSlots();
         if (availableSlots.length == 0) {
-            System.out.println("❌ No available time slots today!");
+            System.out.println("No available time slots today!");
             System.out.println("All slots are booked.");
             // Return the patient to the list
             patients.add(selectedPatient);
@@ -228,27 +259,13 @@ public class ConsultationUI {
         int slotChoice = scanner.nextInt(); scanner.nextLine();
         
         if (slotChoice < 1 || slotChoice > availableSlots.length) {
-            System.out.println("❌ Invalid time slot selection!");
+            System.out.println("Invalid time slot selection!");
             // Return the patient to the list
             patients.add(selectedPatient);
             return;
         }
         
         String appointmentTime = availableSlots[slotChoice - 1];
-        
-        System.out.println("Select Queue Type:");
-        System.out.println("1. Emergency");
-        System.out.println("2. Walk-in");
-        System.out.println("3. Scheduled");
-        System.out.print("Enter choice: ");
-        int queueChoice = scanner.nextInt(); scanner.nextLine();
-        
-        String queueType = switch (queueChoice) {
-            case 1 -> "EMERGENCY";
-            case 2 -> "WALK_IN";
-            case 3 -> "SCHEDULED";
-            default -> "WALK_IN";
-        };
         
         // Extract symptoms from patient dialogue
         String symptoms = extractSymptomsFromDialogue(patientDialogue);
@@ -259,27 +276,17 @@ public class ConsultationUI {
         Consultation consultation = new Consultation(consultationId, patientId, selectedPatient.getName(), doctorId, doctorName2,
                                                    appointmentTime, symptoms, queueType);
         consultationControl.addConsultation(consultation);
-        System.out.println("✅ Consultation added successfully!");
-        System.out.println("Symptoms extracted: " + symptoms);
+                    System.out.println("Consultation added successfully!");
+        System.out.println("   Consultation ID: " + consultationId);
+        System.out.println("   Patient: " + selectedPatient.getName());
+        System.out.println("   Doctor: " + doctorName2);
+        System.out.println("   Time: " + appointmentTime);
+        System.out.println("   Type: " + queueType);
+        System.out.println("   Symptoms extracted: " + symptoms);
         System.out.println("Auto-diagnosis: " + consultation.getDiagnosis());
         
-        // Automatically complete the consultation
-        System.out.println("\n🩺 Conducting consultation...");
-        consultationControl.updateConsultationStatus(consultationId, "COMPLETED");
-        System.out.println("✅ Consultation completed!");
-        
-        // Prompt for treatment creation
-        System.out.println("\n💊 Would you like to create a treatment for this patient?");
-        System.out.println("1. Yes - Create treatment now");
-        System.out.println("2. No - Skip for now");
-        System.out.print("Enter choice: ");
-        int treatmentChoice = scanner.nextInt(); scanner.nextLine();
-        
-        if (treatmentChoice == 1) {
-            createTreatmentForConsultation(consultation);
-        } else {
-            System.out.println("⏭️ Treatment creation skipped. You can create it later from Medical Treatment module.");
-        }
+        System.out.println("\nConsultation added to queue successfully!");
+        System.out.println("   Status: WAITING (ready for consultation)");
     }
 
     private void viewAllConsultations() {
@@ -304,7 +311,7 @@ public class ConsultationUI {
         
         if (nextPatient != null) {
             System.out.println("Next patient to see: " + nextPatient);
-            System.out.println("⏰ Estimated wait time: " + nextPatient.getEstimatedWaitingMinutes() + " minutes");
+            System.out.println("Estimated wait time: " + nextPatient.getEstimatedWaitingMinutes() + " minutes");
         } else {
             System.out.println("No patients waiting in queue.");
         }
@@ -397,9 +404,171 @@ public class ConsultationUI {
         
         boolean removed = consultationControl.removeConsultation(consultationId);
         if (removed) {
-            System.out.println("✅ Consultation removed successfully!");
+            System.out.println("Consultation removed successfully!");
         } else {
-            System.out.println("❌ Consultation not found.");
+            System.out.println("Consultation not found.");
+        }
+    }
+
+
+
+    private void changeConsultationStatus() {
+        System.out.println("\n=== Change Consultation Status ===");
+        
+        // Get all consultations
+        ListInterface<Consultation> allConsultations = consultationControl.getAllConsultations();
+        if (allConsultations.isEmpty()) {
+            System.out.println("No consultations found.");
+            return;
+        }
+        
+        // Show all consultations
+        System.out.println("All Consultations:");
+        for (int i = 0; i < allConsultations.size(); i++) {
+            Consultation consultation = allConsultations.get(i);
+            System.out.printf("%d. %s - Patient: %s - Status: %s - Type: %s - Time: %s%n", 
+                (i + 1), consultation.getConsultationId(), consultation.getPatientName(), 
+                consultation.getStatus(), consultation.getQueueType(), consultation.getAppointmentTime());
+        }
+        
+        System.out.print("Select consultation to change (1-" + allConsultations.size() + "): ");
+        int choice = scanner.nextInt(); scanner.nextLine();
+        
+        if (choice < 1 || choice > allConsultations.size()) {
+            System.out.println("Invalid selection!");
+            return;
+        }
+        
+        Consultation selectedConsultation = allConsultations.get(choice - 1);
+        String consultationId = selectedConsultation.getConsultationId();
+        
+        System.out.println("\nSelected Consultation:");
+        System.out.println("   ID: " + consultationId);
+        System.out.println("   Patient: " + selectedConsultation.getPatientName());
+        System.out.println("   Current Status: " + selectedConsultation.getStatus());
+        System.out.println("   Current Type: " + selectedConsultation.getQueueType());
+        System.out.println("   Current Time: " + selectedConsultation.getAppointmentTime());
+        
+        // Special handling for Emergency patients
+        if (selectedConsultation.getQueueType().equals("EMERGENCY")) {
+            System.out.println("\nEMERGENCY PATIENT - Limited Options Available:");
+            System.out.println("Emergency patients cannot change queue type.");
+            System.out.println("1. Cancel Emergency Consultation");
+            System.out.println("2. Move to Nearest Available Slot");
+            System.out.println("3. Cancel Operation");
+            System.out.print("Enter choice: ");
+            int emergencyChoice = scanner.nextInt(); scanner.nextLine();
+            
+            switch (emergencyChoice) {
+                case 1 -> {
+                    // Cancel Emergency
+                    boolean success = consultationControl.updateConsultationStatus(consultationId, "CANCELLED");
+                    if (success) {
+                        System.out.println("Emergency consultation cancelled.");
+                        System.out.println("Emergency slot freed up for other patients");
+                    } else {
+                        System.out.println("Failed to cancel emergency consultation.");
+                    }
+                }
+                case 2 -> {
+                    // Move to nearest available slot
+                    System.out.println("Moving emergency patient to nearest available slot...");
+                    
+                    // Remove from current position
+                    consultationControl.removeConsultation(consultationId);
+                    
+                    // Get next available time slot
+                    String newTimeSlot = consultationControl.getNextAvailableTimeSlot();
+                    
+                    // Update the consultation object with new time
+                    selectedConsultation.setAppointmentTime(newTimeSlot);
+                    
+                    // Add back as emergency (maintains emergency priority)
+                    consultationControl.addConsultation(selectedConsultation);
+                    
+                    System.out.println("Emergency patient moved to " + newTimeSlot);
+                    System.out.println("Emergency priority maintained");
+                    System.out.println("Time slot updated: " + selectedConsultation.getPatientName() + " → " + newTimeSlot);
+                }
+                case 3 -> System.out.println("Operation cancelled");
+                default -> System.out.println("Invalid choice for emergency patient");
+            }
+            return;
+        }
+        
+        // Regular patients (Scheduled/Walk-in) can change queue type and status
+        System.out.println("\nChange Options:");
+        System.out.println("1. Change Queue Type (Scheduled ↔ Walk-in)");
+        System.out.println("2. Change Status (WAITING ↔ CANCELLED)");
+        System.out.println("3. Cancel");
+        System.out.print("Enter choice: ");
+        int changeChoice = scanner.nextInt(); scanner.nextLine();
+        
+        switch (changeChoice) {
+            case 1 -> {
+                // Change queue type (Emergency not allowed for regular patients)
+                System.out.println("\nNew Queue Type:");
+                System.out.println("1. WALK_IN");
+                System.out.println("2. SCHEDULED");
+                System.out.print("Enter choice: ");
+                int typeChoice = scanner.nextInt(); scanner.nextLine();
+                
+                String newType = switch (typeChoice) {
+                    case 1 -> "WALK_IN";
+                    case 2 -> "SCHEDULED";
+                    default -> selectedConsultation.getQueueType();
+                };
+                
+                if (!newType.equals(selectedConsultation.getQueueType())) {
+                    // Remove from current list and add to appropriate list
+                    consultationControl.removeConsultation(consultationId);
+                    
+                    // Update queue type
+                    selectedConsultation.setQueueType(newType);
+                    
+                    // Add back to appropriate list
+                    consultationControl.addConsultation(selectedConsultation);
+                    
+                    System.out.println("Queue type changed to: " + newType);
+                    
+                    // If changing to WALK_IN, remove time slot reservation
+                    if (newType.equals("WALK_IN")) {
+                        System.out.println("Time slot reservation removed (Walk-in patients don't reserve slots)");
+                    }
+                } else {
+                    System.out.println("No change made (same type selected)");
+                }
+            }
+            case 2 -> {
+                // Change status
+                System.out.println("\nNew Status:");
+                System.out.println("1. WAITING");
+                System.out.println("2. CANCELLED");
+                System.out.print("Enter choice: ");
+                int statusChoice = scanner.nextInt(); scanner.nextLine();
+                
+                String newStatus = switch (statusChoice) {
+                    case 1 -> "WAITING";
+                    case 2 -> "CANCELLED";
+                    default -> selectedConsultation.getStatus();
+                };
+                
+                if (!newStatus.equals(selectedConsultation.getStatus())) {
+                    boolean success = consultationControl.updateConsultationStatus(consultationId, newStatus);
+                    if (success) {
+                        System.out.println("Status changed to: " + newStatus);
+                        if (newStatus.equals("CANCELLED")) {
+                            System.out.println("   Time slot reservation released");
+                        }
+                    } else {
+                        System.out.println("Failed to update status");
+                    }
+                } else {
+                    System.out.println("No change made (same status selected)");
+                }
+            }
+            case 3 -> System.out.println("Operation cancelled");
+            default -> System.out.println("Invalid choice");
         }
     }
 
@@ -446,110 +615,5 @@ public class ConsultationUI {
         };
     }
 
-    private void createTreatmentForConsultation(Consultation consultation) {
-        System.out.println("\n=== Create Treatment ===");
-        
-        // Auto-fill data from consultation
-        String consultationId = consultation.getConsultationId();
-        String patientId = consultation.getPatientId();
-        String patientName = consultation.getPatientName();
-        String doctorId = consultation.getDoctorId();
-        String doctorName = consultation.getDoctorName();
-        String diagnosis = consultation.getDiagnosis();
-        
-        System.out.println("📋 Consultation Details:");
-        System.out.println("   Consultation ID: " + consultationId);
-        System.out.println("   Patient ID: " + patientId);
-        System.out.println("   Patient Name: " + patientName);
-        System.out.println("   Doctor ID: " + doctorId);
-        System.out.println("   Doctor Name: " + doctorName);
-        System.out.println("   Diagnosis: " + diagnosis);
-        
-        // Suggest prescription based on diagnosis
-        String suggestedPrescription = suggestPrescription(diagnosis);
-        System.out.println("\n💊 Suggested Prescription for " + diagnosis + ":");
-        System.out.println("   " + suggestedPrescription);
-        
-        System.out.print("Enter Prescription Details (or press Enter to use suggestion): ");
-        String prescription = scanner.nextLine();
-        
-        if (prescription.trim().isEmpty()) {
-            prescription = suggestedPrescription;
-            System.out.println("✅ Using suggested prescription: " + prescription);
-        }
-        
-        // Auto-calculate cost based on diagnosis
-        double suggestedCost = calculateSuggestedCost(diagnosis);
-        System.out.println("\n💰 Suggested Cost: $" + String.format("%.2f", suggestedCost));
-        
-        System.out.print("Enter Treatment Cost (or press Enter to use suggestion): $");
-        String costInput = scanner.nextLine();
-        double cost;
-        
-        if (costInput.trim().isEmpty()) {
-            cost = suggestedCost;
-            System.out.println("✅ Using suggested cost: $" + String.format("%.2f", cost));
-        } else {
-            try {
-                cost = Double.parseDouble(costInput);
-            } catch (NumberFormatException e) {
-                System.out.println("❌ Invalid cost format. Using suggested cost.");
-                cost = suggestedCost;
-            }
-        }
-        
-        // Auto-generate treatment date (today)
-        String treatmentDate = java.time.LocalDate.now().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-        System.out.println("📅 Treatment Date: " + treatmentDate);
-        
-        // Auto-generate treatment ID
-        String treatmentId = treatmentControl.generateTreatmentId();
-        
-        // Create and add treatment to the system
-        MedicalTreatment treatment = new MedicalTreatment(treatmentId, consultationId, patientId, doctorId,
-                                                        diagnosis, prescription, treatmentDate, cost);
-        treatmentControl.addTreatment(treatment);
-        
-        System.out.println("\n✅ Treatment created successfully!");
-        System.out.println("   Treatment ID: " + treatmentId);
-        System.out.println("   📋 Prescription ready for pharmacy dispensing");
-        System.out.println("   💰 Cost: $" + String.format("%.2f", cost));
-        System.out.println("   📅 Date: " + treatmentDate);
-        
-        System.out.println("\n🎉 Complete workflow: Consultation → Treatment created!");
-        System.out.println("   You can view and manage treatments in the Medical Treatment module.");
-    }
 
-    // Helper methods for treatment creation
-    private String suggestPrescription(String diagnosis) {
-        return switch (diagnosis.toLowerCase()) {
-            case "fever" -> "Paracetamol 500mg - 2 tablets every 6 hours for 3 days";
-            case "common cold" -> "Decongestant syrup - 10ml every 8 hours for 5 days";
-            case "headache" -> "Ibuprofen 400mg - 1 tablet every 8 hours as needed";
-            case "gastritis" -> "Antacid tablets - 2 tablets after meals for 7 days";
-            case "pain management" -> "Pain relief cream - Apply 3 times daily";
-            case "dizziness" -> "Anti-vertigo medication - 1 tablet daily for 3 days";
-            case "nausea" -> "Anti-nausea tablets - 1 tablet before meals";
-            case "fatigue" -> "Multivitamin supplements - 1 tablet daily";
-            case "sore throat" -> "Throat lozenges - 1 every 4 hours";
-            case "back pain" -> "Muscle relaxant - 1 tablet at night for 5 days";
-            default -> "General medication - Follow doctor's instructions";
-        };
-    }
-
-    private double calculateSuggestedCost(String diagnosis) {
-        return switch (diagnosis.toLowerCase()) {
-            case "fever" -> 25.00;
-            case "common cold" -> 30.00;
-            case "headache" -> 20.00;
-            case "gastritis" -> 35.00;
-            case "pain management" -> 40.00;
-            case "dizziness" -> 45.00;
-            case "nausea" -> 25.00;
-            case "fatigue" -> 50.00;
-            case "sore throat" -> 15.00;
-            case "back pain" -> 60.00;
-            default -> 30.00;
-        };
-    }
 }
