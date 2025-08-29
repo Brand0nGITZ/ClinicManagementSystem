@@ -17,11 +17,11 @@ public class MedicineMaintenance {
     public MedicineMaintenance(MyArrayList<Medicine> medicineList) {
         this.medicineList = medicineList;
         this.diagnosisMedicineMap = new MyArrayList<>();
-        this.nextMedicineId = 11;
+        this.nextMedicineId = 14;
     }
     
     // Auto-generate medicine ID
-    private int nextMedicineId = 11;
+    private int nextMedicineId = 14;
     public String generateMedicineId() {
         return String.format("M%03d", nextMedicineId++);
     }

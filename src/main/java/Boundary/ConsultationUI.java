@@ -201,13 +201,22 @@ public class ConsultationUI {
         
         // Handle emergency cases immediately
         if (queueType.equals("EMERGENCY")) {
-            System.out.println("\nEMERGENCY CASE - Immediate Priority!");
+            System.out.println("\n=== EMERGENCY CASE - IMMEDIATE PRIORITY ===");
+            System.out.println("================================================================================================================");
+            System.out.println("| EMERGENCY PATIENT INFORMATION                                                                               |");
+            System.out.println("|==============================================================================================================|");
+            System.out.printf("| Patient Name:  %-20s | Patient ID: %-15s |\n", selectedPatient.getName(), patientId);
+            System.out.printf("| Doctor:        %-20s | Status:     %-15s |\n", getDoctorName(doctorId), "EMERGENCY PRIORITY");
+            System.out.println("|==============================================================================================================|");
             
             // Check doctor availability even for emergency cases
             if (!consultationControl.isDoctorAvailable(doctorId)) {
-                System.out.println("All doctors are currently at full capacity (2 patients each)!");
-                System.out.println("   Emergency case cannot be accommodated at this time.");
-                System.out.println("   Please wait for a consultation to be completed first.");
+                System.out.println("| DOCTOR CAPACITY WARNING                                                                                    |");
+                System.out.println("|==============================================================================================================|");
+                System.out.println("| All doctors are currently at full capacity (2 patients each)!                    |");
+                System.out.println("| Emergency case cannot be accommodated at this time.                             |");
+                System.out.println("| Please wait for a consultation to be completed first.                           |");
+                System.out.println("================================================================================================================");
                 // Return the patient to the list
                 patients.add(selectedPatient);
                 return;
@@ -223,12 +232,15 @@ public class ConsultationUI {
                                                        "17:00", symptoms, queueType); // Temporary time, will be swapped
             
             consultationControl.addConsultation(consultation);
-            System.out.println("Emergency consultation added with immediate priority!");
-            System.out.println("   Consultation ID: " + consultationId);
-            System.out.println("   Patient: " + selectedPatient.getName());
-            System.out.println("   Doctor: " + doctorName2);
-            System.out.println("   Status: Emergency priority - time slot will be automatically assigned");
-            System.out.println("   Symptoms extracted: " + symptoms);
+            
+            System.out.println("| EMERGENCY CONSULTATION CREATED                                                                              |");
+            System.out.println("|==============================================================================================================|");
+            System.out.printf("| Consultation ID: %-15s | Status: %-15s |\n", consultationId, "EMERGENCY PRIORITY");
+            System.out.printf("| Patient:        %-15s | Doctor: %-15s |\n", selectedPatient.getName(), doctorName2);
+            System.out.printf("| Symptoms:       %-15s | Time:   %-15s |\n", symptoms, "AUTO-ASSIGNED");
+            System.out.println("|==============================================================================================================|");
+            System.out.println("| Time slot will be automatically assigned with highest priority!                      |");
+            System.out.println("================================================================================================================");
             return;
         }
         

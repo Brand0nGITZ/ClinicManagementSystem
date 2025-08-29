@@ -36,7 +36,7 @@ public class MyArrayList<T> implements ListInterface<T> {
         frequencySize = 0;
     }
     
-    // === UNIVERSAL BASIC OPERATIONS ===
+    
     @Override
     public void add(T item) {
         validateItem(item);
@@ -284,10 +284,7 @@ public class MyArrayList<T> implements ListInterface<T> {
             array[size - 1 - i] = temp;
         }
     }
-    
-    // === UNIVERSAL STATISTICS OPERATIONS ===
-
-    
+     
     @Override
     public T getMostFrequent() {
         T mostFrequent = null;
@@ -301,9 +298,7 @@ public class MyArrayList<T> implements ListInterface<T> {
         }
         return mostFrequent;
     }
-    
-
-    
+      
     @Override
     public double getAverageLength() {
         if (isEmpty()) return 0.0;
@@ -319,9 +314,6 @@ public class MyArrayList<T> implements ListInterface<T> {
     public int getUniqueCount() {
         return frequencySize;
     }
-    
-    // === UNIVERSAL UTILITY OPERATIONS ===
-    // Removed unused methods: getRandom, shuffle, getRandomSample, clone, addAll, equals
     
     // === UNIVERSAL VALIDATION OPERATIONS ===
     @Override
@@ -348,7 +340,7 @@ public class MyArrayList<T> implements ListInterface<T> {
         return false;
     }
     
-    // === PRIVATE HELPER METHODS ===
+   
     private void expand() {
         T[] currentArray = array;
         T[] newArray = (T[]) new Object[array.length * 2];
@@ -416,7 +408,7 @@ public class MyArrayList<T> implements ListInterface<T> {
         return sb.toString();
     }
     
-    // === ITERATOR IMPLEMENTATION ===
+   
     
     /**
      * Returns a MyIterator for forward iteration

@@ -238,8 +238,13 @@ public class ConsultationManagement {
             consultation.setAppointmentTime(swappedSlot);
             
             consultationList.add(consultation);
-                          System.out.println("Emergency patient added with immediate priority at " + swappedSlot);
-            System.out.println("   Time slot swapped with earliest walk-in patient");
+            
+            System.out.println("| EMERGENCY TIME SLOT ASSIGNMENT                                                                              |");
+            System.out.println("|==============================================================================================================|");
+            System.out.printf("| Emergency patient: %-15s | Assigned Time: %-15s |\n", 
+                consultation.getPatientName(), swappedSlot);
+            System.out.println("| Priority: HIGHEST - Time slot automatically assigned with immediate priority!        |");
+            System.out.println("================================================================================================================");
         } else {
             // Walk-in patients get next available slot
             String nextSlot = getNextAvailableTimeSlot();
@@ -734,10 +739,13 @@ public class ConsultationManagement {
             String nextAvailableSlot = getNextAvailableTimeSlotAfter(walkInTime);
             earliestWalkIn.setAppointmentTime(nextAvailableSlot);
             
-            System.out.println("   Emergency patient " + emergencyPatient.getPatientName() + 
-                             " gets " + walkInTime + " (swapped with " + earliestWalkIn.getPatientName() + ")");
-            System.out.println("   Walk-in patient " + earliestWalkIn.getPatientName() + 
-                             " moved to " + nextAvailableSlot);
+            System.out.println("| TIME SLOT SWAP DETAILS                                                                                      |");
+            System.out.println("|==============================================================================================================|");
+            System.out.printf("| Emergency patient %-15s gets %-5s (swapped with %-15s) |\n", 
+                emergencyPatient.getPatientName(), walkInTime, earliestWalkIn.getPatientName());
+            System.out.printf("| Walk-in patient %-15s moved to %-5s                                    |\n", 
+                earliestWalkIn.getPatientName(), nextAvailableSlot);
+            System.out.println("|==============================================================================================================|");
             
             return walkInTime;
         } else {
