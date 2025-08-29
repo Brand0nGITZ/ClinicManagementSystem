@@ -13,7 +13,7 @@ public class Medicine {
     private String name;
     private String category;
     private int stock;
-    private String expiryDate; // e.g., "2025-12-31"
+    private String expiryDate; // 
 
     public Medicine(String medicineID, String name, String category, int stock, String expiryDate) {
         this.medicineID = medicineID;

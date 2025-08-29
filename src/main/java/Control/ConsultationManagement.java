@@ -414,7 +414,7 @@ public class ConsultationManagement {
     
     // Check if it's time for a scheduled appointment
     private boolean isTimeForScheduledAppointment(String appointmentTime) {
-        // For now, we'll use a simple approach: check if there are no earlier walk-in/emergency patients
+        //  Check if there are no earlier walk-in/emergency patients
         // This ensures scheduled patients only get priority when it's actually their time
         
         // Get the current "clinic time" based on the earliest waiting patient
@@ -445,7 +445,7 @@ public class ConsultationManagement {
         return earliestTime;
     }
 
-    // Creative ADT Usage: Search by Patient ID
+    //  Search by Patient ID
     public ListInterface<Consultation> getConsultationsByPatient(String patientId) {
         ListInterface<Consultation> patientConsultations = new MyArrayList<>();
         for (int i = 0; i < consultationList.size(); i++) {
@@ -457,7 +457,7 @@ public class ConsultationManagement {
         return patientConsultations;
     }
 
-    // Creative ADT Usage: Search by Doctor ID
+    // Search by Doctor ID
     public ListInterface<Consultation> getConsultationsByDoctor(String doctorId) {
         ListInterface<Consultation> doctorConsultations = new MyArrayList<>();
         for (int i = 0; i < consultationList.size(); i++) {
@@ -469,7 +469,7 @@ public class ConsultationManagement {
         return doctorConsultations;
     }
 
-    // Creative ADT Usage: Search by Symptoms
+    //  Search by Symptoms
     public ListInterface<Consultation> getConsultationsBySymptoms(String symptom) {
         ListInterface<Consultation> symptomConsultations = new MyArrayList<>();
         for (int i = 0; i < consultationList.size(); i++) {
@@ -504,7 +504,7 @@ public class ConsultationManagement {
         return false;
     }
 
-    // Creative ADT Usage: Generate Queue Report
+    //  Generate Queue Report
     public void generateQueueReport() {
         System.out.println("\n=== Consultation Queue Report ===");
         System.out.println("================================================================================================================");
@@ -618,8 +618,8 @@ public class ConsultationManagement {
         System.out.println("================================================================================================================");
     }
 
-    public ListInterface<Consultation> getAllConsultations() {
-        // Combine both lists: scheduled consultations first, then regular consultations
+    // Combine both lists: scheduled consultations first, then regular consultations
+    public ListInterface<Consultation> getAllConsultations() {        // Combine both lists: scheduled consultations first, then regular consultations
         ListInterface<Consultation> allConsultations = new MyArrayList<>();
         
         // Add scheduled consultations first (they have priority)

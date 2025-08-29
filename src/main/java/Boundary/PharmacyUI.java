@@ -8,8 +8,10 @@ import ADT.MyArrayList;
 import ADT.ListInterface;
 import Control.MedicineMaintenance;
 import Control.MedicalTreatmentManagement;
+import Control.ConsultationManagement;
 import Entity.Medicine;
 import Entity.MedicalTreatment;
+import Entity.Consultation;
 import Utility.LinearSearch;
 import java.util.Scanner;
 
@@ -21,10 +23,12 @@ public class PharmacyUI {
     private final Scanner scanner = new Scanner(System.in);
     private final MedicineMaintenance medicineControl;
     private final MedicalTreatmentManagement treatmentControl;
+    private final ConsultationManagement consultationControl;
 
-    public PharmacyUI(MedicineMaintenance medicineControl, MedicalTreatmentManagement treatmentControl) {
+    public PharmacyUI(MedicineMaintenance medicineControl, MedicalTreatmentManagement treatmentControl, ConsultationManagement consultationControl) {
         this.medicineControl = medicineControl;
         this.treatmentControl = treatmentControl;
+        this.consultationControl = consultationControl;
         // Medicines are now initialized in the main application
     }
 
@@ -831,21 +835,19 @@ public class PharmacyUI {
         };
     }
     
-    // Helper method to get patient name from ID
+    // Helper method to get patient name from ID using consultation data
     private String getPatientNameFromId(String patientId) {
-        return switch (patientId) {
-            case "P001" -> "John Smith";
-            case "P002" -> "Sarah Johnson";
-            case "P003" -> "Michael Brown";
-            case "P004" -> "Emily Davis";
-            case "P005" -> "David Wilson";
-            case "P006" -> "Lisa Anderson";
-            case "P007" -> "Robert Taylor";
-            case "P008" -> "Jennifer Martinez";
-            case "P009" -> "William Garcia";
-            case "P010" -> "Amanda Rodriguez";
-            default -> "Unknown Patient";
-        };
+        // Try to get patient name from consultation data first
+        ListInterface<Consultation> allConsultations = consultationControl.getAllConsultations();
+        for (int i = 0; i < allConsultations.size(); i++) {
+            Consultation consultation = allConsultations.get(i);
+            if (consultation.getPatientId().equals(patientId)) {
+                return consultation.getPatientName();
+            }
+        }
+        
+        // If not found in consultations, return a generic name
+        return "Patient " + patientId;
     }
 
     // Helper method to get doctor name from ID

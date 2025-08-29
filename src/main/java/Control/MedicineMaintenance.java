@@ -12,7 +12,7 @@ import ADT.ListInterface;
  */
 public class MedicineMaintenance {
     private final MyArrayList<Medicine> medicineList;
-    private final MyArrayList<MyArrayList.KeyValuePair<String, MyArrayList<String>>> diagnosisMedicineMap; // Diagnosis -> List of Medicine IDs
+    private final MyArrayList<MyArrayList.KeyValuePair<String, MyArrayList<String>>> diagnosisMedicineMap; 
 
     public MedicineMaintenance(MyArrayList<Medicine> medicineList) {
         this.medicineList = medicineList;

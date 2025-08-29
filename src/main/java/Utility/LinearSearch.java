@@ -47,7 +47,7 @@ public class LinearSearch {
         
         query = query.toLowerCase().trim();
         
-        // Use custom iterator for linear search
+        
         MyIterator<T> iterator = items.iterator();
         int index = 0;
         
@@ -179,7 +179,7 @@ public class LinearSearch {
             return results;
         }
         
-        // Use custom iterator for linear search
+    
         MyIterator<T> iterator = items.iterator();
         int index = 0;
         
@@ -221,7 +221,7 @@ public class LinearSearch {
         
         query = query.toLowerCase().trim();
         
-        // Use custom iterator for linear search
+      
         MyIterator<T> iterator = items.iterator();
         int index = 0;
         

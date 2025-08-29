@@ -28,7 +28,7 @@ public class ClinicManagementSystem {
     }
     
     private static void initializeMedicines() {
-        System.out.println("Initializing Pharmacy Inventory...");
+        
         
         // Add all medicines needed for diagnoses
         sharedMedicineControl.addMedicine(new Medicine("M001", "Paracetamol 500mg", "Painkiller", 150, "2025-12-31"));
@@ -48,7 +48,7 @@ public class ClinicManagementSystem {
         // Initialize diagnosis-medicine relationships
         sharedMedicineControl.initializeDiagnosisMedicineRelationships();
         
-        System.out.println("Pharmacy inventory initialized with " + sharedMedicineControl.getAllMedicines().size() + " medicines");
+       
     }
 
     public static void main(String[] args) {
@@ -78,7 +78,7 @@ public class ClinicManagementSystem {
                 }
                 case 3 -> {
                     System.out.println("\nStarting Pharmacy Management Module...");
-                    new PharmacyUI(sharedMedicineControl, sharedTreatmentControl).run();
+                    new PharmacyUI(sharedMedicineControl, sharedTreatmentControl, sharedConsultationControl).run();
                 }
                 case 0 -> System.out.println("Thank you for using Clinic Management System!");
                 default -> System.out.println("Invalid choice. Please try again.");

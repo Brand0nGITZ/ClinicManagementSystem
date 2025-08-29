@@ -252,7 +252,7 @@ public class MedicalTreatmentUI {
         return medicineControl.suggestPrescriptionWithQuantity(diagnosis);
     }
 
-    // Calculate suggested cost based on diagnosis (in RM)
+    // Calculate suggested cost based on diagnosis 
     private double calculateSuggestedCost(String diagnosis) {
         return switch (diagnosis.toLowerCase()) {
             case "fever" -> 15.00;
@@ -541,21 +541,19 @@ public class MedicalTreatmentUI {
         }
     }
 
-    // Helper method to get patient name from ID
+    // Helper method to get patient name from ID using consultation data
     private String getPatientNameFromId(String patientId) {
-        return switch (patientId) {
-            case "P001" -> "John Smith";
-            case "P002" -> "Sarah Johnson";
-            case "P003" -> "Michael Brown";
-            case "P004" -> "Emily Davis";
-            case "P005" -> "David Wilson";
-            case "P006" -> "Lisa Anderson";
-            case "P007" -> "Robert Taylor";
-            case "P008" -> "Jennifer Martinez";
-            case "P009" -> "William Garcia";
-            case "P010" -> "Amanda Rodriguez";
-            default -> "Unknown Patient";
-        };
+        // Try to get patient name from consultation data first
+        ListInterface<Consultation> allConsultations = consultationControl.getAllConsultations();
+        for (int i = 0; i < allConsultations.size(); i++) {
+            Consultation consultation = allConsultations.get(i);
+            if (consultation.getPatientId().equals(patientId)) {
+                return consultation.getPatientName();
+            }
+        }
+        
+        // If not found in consultations, return a generic name
+        return "Patient " + patientId;
     }
 
     // Helper method to get doctor name from ID

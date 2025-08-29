@@ -8,22 +8,21 @@ import ADT.MyIterator;
 import ADT.MyListIterator;
 
 /**
- * @author yapji
+ * @author yapjinkai
  * @param <T>
  */
 public class MyArrayList<T> implements ListInterface<T> {
     
-    // === CORE DATA STRUCTURES ===
+    
     private T[] array;
     private int size;
     private static final int DEFAULT_CAPACITY = 10;
     
-    // === STATISTICS TRACKING ===
+    
     private T[] frequencyKeys;
     private int[] frequencyValues;
     private int frequencySize;
     
-    // === CONSTRUCTORS ===
     public MyArrayList() {
         this(DEFAULT_CAPACITY);
     }
@@ -48,7 +47,7 @@ public class MyArrayList<T> implements ListInterface<T> {
         updateFrequencyMap(item, 1);
     }
     
-    // === HASHMAP-LIKE FUNCTIONALITY ===
+    // === HASHMAP ===
     // Key-Value pair structure for HashMap-like operations
     public static class KeyValuePair<K, V> {
         private K key;
@@ -235,7 +234,7 @@ public class MyArrayList<T> implements ListInterface<T> {
         frequencySize = 0;
     }
     
-    // === UNIVERSAL SEARCH OPERATIONS ===
+    
     @Override
     public T findFirst(Predicate<T> predicate) {
         for (int i = 0; i < size; i++) {
@@ -262,7 +261,7 @@ public class MyArrayList<T> implements ListInterface<T> {
         return filter(item -> item.toString().toLowerCase().contains(keyword.toLowerCase()));
     }
     
-    // === UNIVERSAL SORTING OPERATIONS ===
+    
     @Override
     public void sort(Comparator<T> comparator) {
         for (int i = 0; i < size - 1; i++) {
@@ -315,7 +314,7 @@ public class MyArrayList<T> implements ListInterface<T> {
         return frequencySize;
     }
     
-    // === UNIVERSAL VALIDATION OPERATIONS ===
+    
     @Override
     public boolean isValidIndex(int index) {
         return index >= 0 && index < size;
@@ -388,7 +387,7 @@ public class MyArrayList<T> implements ListInterface<T> {
         }
     }
     
-    // === ENHANCED TOSTRING ===
+    
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -442,9 +441,7 @@ public class MyArrayList<T> implements ListInterface<T> {
         return new MyListIterator(index);
     }
     
-    /**
-     * Simple Iterator implementation for forward iteration
-     */
+    
     private class MyIterator implements ADT.MyIterator<T> {
         private int cursor = 0;
         private int lastReturned = -1;
@@ -494,9 +491,7 @@ public class MyArrayList<T> implements ListInterface<T> {
         }
     }
     
-    /**
-     * Custom ListIterator implementation for MyArrayList
-     */
+    
     private class MyListIterator implements ADT.MyListIterator<T> {
         private int cursor;           // Position of next element to return
         private int lastReturned;     // Position of last element returned (-1 if none)

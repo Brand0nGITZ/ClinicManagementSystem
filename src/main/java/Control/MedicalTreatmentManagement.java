@@ -10,7 +10,7 @@ import ADT.MyArrayList;
 
 /**
  *
- * @author yapji
+ * @author yapjinkai
  */
 public class MedicalTreatmentManagement {
     private final MyArrayList<MedicalTreatment> treatmentList;
@@ -41,7 +41,7 @@ public class MedicalTreatmentManagement {
         return false;
     }
 
-    // Creative ADT Usage: Get Treatment History by Patient
+    //  Get Treatment History by Patient
     public ListInterface<MedicalTreatment> getTreatmentHistoryByPatient(String patientId) {
         ListInterface<MedicalTreatment> patientHistory = new MyArrayList<>();
         for (int i = 0; i < treatmentList.size(); i++) {
@@ -53,7 +53,7 @@ public class MedicalTreatmentManagement {
         return patientHistory;
     }
 
-    // Creative ADT Usage: Search by Diagnosis
+    //  Search by Diagnosis
     public ListInterface<MedicalTreatment> getTreatmentsByDiagnosis(String diagnosis) {
         ListInterface<MedicalTreatment> diagnosisTreatments = new MyArrayList<>();
         for (int i = 0; i < treatmentList.size(); i++) {
@@ -65,7 +65,7 @@ public class MedicalTreatmentManagement {
         return diagnosisTreatments;
     }
 
-    // Creative ADT Usage: Search by Doctor
+    //  Search by Doctor
     public ListInterface<MedicalTreatment> getTreatmentsByDoctor(String doctorId) {
         ListInterface<MedicalTreatment> doctorTreatments = new MyArrayList<>();
         for (int i = 0; i < treatmentList.size(); i++) {
@@ -77,7 +77,7 @@ public class MedicalTreatmentManagement {
         return doctorTreatments;
     }
 
-    // Creative ADT Usage: Filter by Status
+    //  Filter by Status
     public ListInterface<MedicalTreatment> getTreatmentsByStatus(String status) {
         ListInterface<MedicalTreatment> statusTreatments = new MyArrayList<>();
         for (int i = 0; i < treatmentList.size(); i++) {
@@ -137,7 +137,7 @@ public class MedicalTreatmentManagement {
         return revenue;
     }
 
-    // Creative ADT Usage: Generate Treatment Reports
+    //  Generate Treatment Reports
     public void generateTreatmentReport() {
         System.out.println("\n=== Medical Treatment Report ===");
         System.out.println("================================================================================================================");
@@ -190,81 +190,9 @@ public class MedicalTreatmentManagement {
         System.out.println("================================================================================================================");
     }
 
-    // Creative ADT Usage: Generate Patient Treatment Summary
-    public void generatePatientTreatmentSummary(String patientId) {
-        ListInterface<MedicalTreatment> patientHistory = getTreatmentHistoryByPatient(patientId);
-        
-        if (patientHistory.isEmpty()) {
-            System.out.println("No treatment history found for patient " + patientId);
-            return;
-        }
 
-        // Get patient name from the first treatment's consultation
-        String patientName = "Unknown";
-        if (!patientHistory.isEmpty()) {
-            MedicalTreatment firstTreatment = patientHistory.get(0);
-            // Try to get patient name from consultation if available
-            // For now, we'll use a simple mapping
-            patientName = getPatientNameFromId(firstTreatment.getPatientId());
-        }
 
-        System.out.println("\n=== Patient Treatment Summary ===");
-        System.out.println("================================================================================================================");
-        System.out.printf("| Patient ID: %-20s | Patient Name: %-20s | Total Treatments: %-3d |\n", 
-            patientId, patientName, patientHistory.size());
-        System.out.println("================================================================================================================");
-
-        double totalCost = 0.0;
-        int completedTreatments = 0;
-        
-        // Patient Treatment Details
-        System.out.println("| TREATMENT DETAILS                                                                                           |");
-        System.out.println("|==============================================================================================================|");
-        System.out.println("| Treatment ID | Date       | Diagnosis | Status   | Cost    | Prescription");
-        System.out.println("|==============================================================================================================|");
-        
-        for (int i = 0; i < patientHistory.size(); i++) {
-            MedicalTreatment treatment = patientHistory.get(i);
-            System.out.printf("| %-12s | %-10s | %-9s | %-9s | RM%-6s | %s\n",
-                treatment.getTreatmentId(),
-                treatment.getTreatmentDate(),
-                treatment.getDiagnosis(),
-                treatment.getStatus(),
-                String.format("%.2f", treatment.getCost()),
-                treatment.getPrescription());
-            
-            totalCost += treatment.getCost();
-            if (treatment.getStatus().equals("COMPLETED") || treatment.getStatus().equals("PAID")) {
-                completedTreatments++;
-            }
-        }
-        System.out.println("|==============================================================================================================|");
-
-        // Patient Summary
-        System.out.println("| PATIENT SUMMARY                                                                                             |");
-        System.out.println("|==============================================================================================================|");
-        System.out.printf("| Total Cost:           RM%-10.2f                                                                              |\n", totalCost);
-        System.out.printf("| Completed Treatments: %-3d                                                                                  |\n", completedTreatments);
-        System.out.printf("| Pending Treatments:   %-3d                                                                                  |\n", (patientHistory.size() - completedTreatments));
-        System.out.println("================================================================================================================");
-    }
-
-    // Helper method to get patient name from ID
-    private String getPatientNameFromId(String patientId) {
-        return switch (patientId) {
-            case "P001" -> "John Smith";
-            case "P002" -> "Sarah Johnson";
-            case "P003" -> "Michael Brown";
-            case "P004" -> "Emily Davis";
-            case "P005" -> "David Wilson";
-            case "P006" -> "Lisa Anderson";
-            case "P007" -> "Robert Taylor";
-            case "P008" -> "Jennifer Martinez";
-            case "P009" -> "William Garcia";
-            case "P010" -> "Amanda Rodriguez";
-            default -> "Unknown Patient";
-        };
-    }
+   
 
     public ListInterface<MedicalTreatment> getAllTreatments() {
         return treatmentList;

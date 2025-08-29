@@ -244,7 +244,7 @@ public class ConsultationUI {
             return;
         }
         
-        // For non-emergency cases, check doctor availability and pick time slot
+        // For non-emergency cases, check doctor availability
         if (!consultationControl.isDoctorAvailable(doctorId)) {
             System.out.println("All doctors are currently at full capacity (2 patients each)!");
             System.out.println("Please wait for a consultation to be completed.");
@@ -253,7 +253,7 @@ public class ConsultationUI {
             return;
         }
         
-        // Show available time slots
+        // Get available time slots
         String[] availableSlots = consultationControl.getAvailableTimeSlots();
         if (availableSlots.length == 0) {
             System.out.println("No available time slots today!");
@@ -263,22 +263,36 @@ public class ConsultationUI {
             return;
         }
         
-        System.out.println("\nAvailable Time Slots:");
-        for (int i = 0; i < availableSlots.length; i++) {
-            System.out.println((i + 1) + ". " + availableSlots[i]);
+        String appointmentTime;
+        
+        // Handle WALK_IN patients - auto-assign next available slot
+        if (queueType.equals("WALK_IN")) {
+            appointmentTime = availableSlots[0]; // Get the first available slot
+            System.out.println("\n=== WALK-IN PATIENT - AUTO TIME SLOT ASSIGNMENT ===");
+            System.out.println("================================================================================================================");
+            System.out.printf("| Auto-assigned Time Slot: %-15s | Queue Type: %-15s |\n", appointmentTime, queueType);
+            System.out.println("|==============================================================================================================|");
+            System.out.printf("| Patient: %-20s | Doctor: %-20s |\n", selectedPatient.getName(), getDoctorName(doctorId));
+            System.out.println("================================================================================================================");
+        } else {
+            // For SCHEDULED patients, allow time slot selection
+            System.out.println("\nAvailable Time Slots:");
+            for (int i = 0; i < availableSlots.length; i++) {
+                System.out.println((i + 1) + ". " + availableSlots[i]);
+            }
+            
+            System.out.print("Select time slot (1-" + availableSlots.length + "): ");
+            int slotChoice = scanner.nextInt(); scanner.nextLine();
+            
+            if (slotChoice < 1 || slotChoice > availableSlots.length) {
+                System.out.println("Invalid time slot selection!");
+                // Return the patient to the list
+                patients.add(selectedPatient);
+                return;
+            }
+            
+            appointmentTime = availableSlots[slotChoice - 1];
         }
-        
-        System.out.print("Select time slot (1-" + availableSlots.length + "): ");
-        int slotChoice = scanner.nextInt(); scanner.nextLine();
-        
-        if (slotChoice < 1 || slotChoice > availableSlots.length) {
-            System.out.println("Invalid time slot selection!");
-            // Return the patient to the list
-            patients.add(selectedPatient);
-            return;
-        }
-        
-        String appointmentTime = availableSlots[slotChoice - 1];
         
         // Extract symptoms from patient dialogue
         String symptoms = extractSymptomsFromDialogue(patientDialogue);
@@ -712,7 +726,7 @@ public class ConsultationUI {
                     // Get next available time slot
                     String newTimeSlot = consultationControl.getNextAvailableTimeSlot();
                     
-                    // Update the consultation object with new time
+                    // Update the consultation object with time
                     selectedConsultation.setAppointmentTime(newTimeSlot);
                     
                     // Add back as emergency (maintains emergency priority)

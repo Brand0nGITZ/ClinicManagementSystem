@@ -18,7 +18,7 @@ public class Consultation {
     private String symptoms;
     private String diagnosis;
     private String queueType; // WALK_IN, SCHEDULED, EMERGENCY
-    private String status; // WAITING, CONSULTED, COMPLETED, CANCELLED, NO_SHOW
+    private String status; // WAITING, CONSULTED, COMPLETED, CANCELLED
     private int estimatedWaitingMinutes;
 
     public Consultation(String consultationId, String patientId, String patientName, String doctorId, String doctorName,
