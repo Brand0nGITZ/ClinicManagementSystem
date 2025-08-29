@@ -16,7 +16,7 @@ import java.util.Random;
 
 /**
  *
- * @author yapji
+ * @author yapjinkai
  */
 public class ConsultationUI {
     private final Scanner scanner = new Scanner(System.in);

@@ -8,7 +8,7 @@ import ADT.MyArrayList;
 import ADT.ListInterface;
 /**
  *
- * @author yapji
+ * @author yapjinkai
  */
 public class MedicineMaintenance {
     private final MyArrayList<Medicine> medicineList;

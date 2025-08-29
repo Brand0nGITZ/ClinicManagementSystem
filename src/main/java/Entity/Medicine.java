@@ -6,7 +6,7 @@ package Entity;
 
 /**
  *
- * @author yapji
+ * @author yapjinkai
  */
 public class Medicine {
     private String medicineID;

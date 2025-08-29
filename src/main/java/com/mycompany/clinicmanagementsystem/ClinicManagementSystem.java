@@ -14,7 +14,7 @@ import Control.MedicineMaintenance;
 import java.util.Scanner;
 /**
  *
- * @author yapji
+ * @author yapjinkai
  */
 public class ClinicManagementSystem {
     // Shared control instances that persist across modules

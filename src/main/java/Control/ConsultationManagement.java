@@ -10,7 +10,7 @@ import ADT.MyArrayList;
 
 /**
  *
- * @author yapji
+ * @author yapjinkai
  */
 public class ConsultationManagement {
     private final MyArrayList<Consultation> consultationList; // For WALK_IN and EMERGENCY only

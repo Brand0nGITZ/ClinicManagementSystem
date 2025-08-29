@@ -7,7 +7,7 @@ import Entity.Patient;
 import java.util.Random;
 /**
  *
- * @author yapji
+ * @author yapjinkai
  */
 public class patientGenerator {
     

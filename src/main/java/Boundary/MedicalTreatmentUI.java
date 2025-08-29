@@ -17,7 +17,7 @@ import java.util.Scanner;
 
 /**
  *
- * @author yapji
+ * @author yapjinkai
  */
 public class MedicalTreatmentUI {
     private final Scanner scanner = new Scanner(System.in);

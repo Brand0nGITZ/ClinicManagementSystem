@@ -8,7 +8,7 @@ import ADT.MyIterator;
  * Linear Search Utility for Universal Search
  * Can be used across all modules: Consultation, Medical Treatment, Pharmacy
  * 
- * @author yapji
+ * @author yapjinkai
  */
 public class LinearSearch {
     
