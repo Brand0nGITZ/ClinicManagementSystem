@@ -184,7 +184,7 @@ public class ConsultationUI {
         String doctorName = getDoctorName(doctorId);
         System.out.println("Auto-assigned Doctor: " + doctorName + " (" + doctorId + ")");
         
-        // Ask for queue type FIRST
+        // Ask for queue type 
         System.out.println("\nSelect Queue Type:");
         System.out.println("1. Emergency");
         System.out.println("2. Walk-in");
@@ -325,10 +325,76 @@ public class ConsultationUI {
         Consultation nextPatient = consultationControl.getNextPatient();
         
         if (nextPatient != null) {
-            System.out.println("Next patient to see: " + nextPatient);
-            System.out.println("Estimated wait time: " + nextPatient.getEstimatedWaitingMinutes() + " minutes");
+            System.out.println("\n=== Next Patient in Queue ===");
+            System.out.println("================================================================================================================");
+            System.out.println("| PRIORITY PATIENT INFORMATION                                                                                |");
+            System.out.println("|==============================================================================================================|");
+            System.out.printf("| Queue Type:    %-15s | Priority Level: %-15s |\n", 
+                nextPatient.getQueueType(), getPriorityLevel(nextPatient.getQueueType()));
+            System.out.printf("| Patient ID:    %-15s | Patient Name:   %-20s |\n", 
+                nextPatient.getPatientId(), nextPatient.getPatientName());
+            System.out.printf("| Doctor ID:     %-15s | Doctor Name:    %-20s |\n", 
+                nextPatient.getDoctorId(), nextPatient.getDoctorName());
+            System.out.printf("| Appointment:   %-15s | Status:         %-20s |\n", 
+                nextPatient.getAppointmentTime(), nextPatient.getStatus());
+            System.out.printf("| Wait Time:     %-15s | Consultation ID: %-20s |\n", 
+                nextPatient.getEstimatedWaitingMinutes() + " minutes", nextPatient.getConsultationId());
+            System.out.println("|==============================================================================================================|");
+            
+            if (nextPatient.getSymptoms() != null && !nextPatient.getSymptoms().trim().isEmpty()) {
+                System.out.println("| SYMPTOMS                                                                                                   |");
+                System.out.println("|==============================================================================================================|");
+                System.out.printf("| %s\n", formatSymptoms(nextPatient.getSymptoms()));
+                System.out.println("|==============================================================================================================|");
+            }
+            
+            if (nextPatient.getDiagnosis() != null && !nextPatient.getDiagnosis().trim().isEmpty()) {
+                System.out.println("| DIAGNOSIS                                                                                                  |");
+                System.out.println("|==============================================================================================================|");
+                System.out.printf("| %s\n", formatDiagnosis(nextPatient.getDiagnosis()));
+                System.out.println("|==============================================================================================================|");
+            }
+            
+            System.out.println("================================================================================================================");
         } else {
-            System.out.println("No patients waiting in queue.");
+            System.out.println("\n=== Queue Status ===");
+            System.out.println("================================================================================================================");
+            System.out.println("| No patients currently waiting in queue.                                                                      |");
+            System.out.println("| All consultations have been completed or are in progress.                                                    |");
+            System.out.println("================================================================================================================");
+        }
+    }
+    
+    private String getPriorityLevel(String queueType) {
+        return switch (queueType.toUpperCase()) {
+            case "EMERGENCY" -> "HIGHEST";
+            case "SCHEDULED" -> "HIGH";
+            case "WALK_IN" -> "NORMAL";
+            default -> "UNKNOWN";
+        };
+    }
+    
+    private String formatSymptoms(String symptoms) {
+        if (symptoms == null || symptoms.trim().isEmpty()) {
+            return "";
+        }
+        
+        if (symptoms.length() <= 80) {
+            return String.format("%-80s", symptoms);
+        } else {
+            return symptoms.substring(0, 77) + "...";
+        }
+    }
+    
+    private String formatDiagnosis(String diagnosis) {
+        if (diagnosis == null || diagnosis.trim().isEmpty()) {
+            return "";
+        }
+        
+        if (diagnosis.length() <= 80) {
+            return String.format("%-80s", diagnosis);
+        } else {
+            return diagnosis.substring(0, 77) + "...";
         }
     }
 

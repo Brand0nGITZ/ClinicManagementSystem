@@ -4,7 +4,6 @@
  */
 package ADT;
 
-import java.util.Random;
 import ADT.MyIterator;
 import ADT.MyListIterator;
 
@@ -23,7 +22,6 @@ public class MyArrayList<T> implements ListInterface<T> {
     private T[] frequencyKeys;
     private int[] frequencyValues;
     private int frequencySize;
-    private Random random;
     
     // === CONSTRUCTORS ===
     public MyArrayList() {
@@ -36,7 +34,6 @@ public class MyArrayList<T> implements ListInterface<T> {
         frequencyKeys = (T[]) new Object[initialCapacity];
         frequencyValues = new int[initialCapacity];
         frequencySize = 0;
-        random = new Random();
     }
     
     // === UNIVERSAL BASIC OPERATIONS ===
@@ -289,15 +286,7 @@ public class MyArrayList<T> implements ListInterface<T> {
     }
     
     // === UNIVERSAL STATISTICS OPERATIONS ===
-    @Override
-    public int getFrequency(T item) {
-        for (int i = 0; i < frequencySize; i++) {
-            if (frequencyKeys[i].equals(item)) {
-                return frequencyValues[i];
-            }
-        }
-        return 0;
-    }
+
     
     @Override
     public T getMostFrequent() {
@@ -313,19 +302,7 @@ public class MyArrayList<T> implements ListInterface<T> {
         return mostFrequent;
     }
     
-    @Override
-    public T getLeastFrequent() {
-        T leastFrequent = null;
-        int minFreq = Integer.MAX_VALUE;
-        
-        for (int i = 0; i < frequencySize; i++) {
-            if (frequencyValues[i] < minFreq) {
-                minFreq = frequencyValues[i];
-                leastFrequent = frequencyKeys[i];
-            }
-        }
-        return leastFrequent;
-    }
+
     
     @Override
     public double getAverageLength() {
@@ -344,65 +321,7 @@ public class MyArrayList<T> implements ListInterface<T> {
     }
     
     // === UNIVERSAL UTILITY OPERATIONS ===
-    @Override
-    public T getRandom() {
-        if (isEmpty()) return null;
-        return array[random.nextInt(size)];
-    }
-    
-    @Override
-    public void shuffle() {
-        for (int i = size - 1; i > 0; i--) {
-            int j = random.nextInt(i + 1);
-            T temp = array[i];
-            array[i] = array[j];
-            array[j] = temp;
-        }
-    }
-    
-    @Override
-    public ListInterface<T> getRandomSample(int count) {
-        MyArrayList<T> sample = new MyArrayList<>();
-        int sampleSize = Math.min(count, size);
-        
-        for (int i = 0; i < sampleSize; i++) {
-            T randomItem = getRandom();
-            if (randomItem != null) {
-                sample.add(randomItem);
-            }
-        }
-        return sample;
-    }
-    
-    @Override
-    public ListInterface<T> clone() {
-        MyArrayList<T> clone = new MyArrayList<>(array.length);
-        for (int i = 0; i < size; i++) {
-            clone.add(array[i]);
-        }
-        return clone;
-    }
-    
-    @Override
-    public void addAll(ListInterface<T> other) {
-        for (int i = 0; i < other.size(); i++) {
-            add(other.get(i));
-        }
-    }
-    
-    @Override
-    public boolean equals(ListInterface<T> other) {
-        if (other == null || this.size() != other.size()) {
-            return false;
-        }
-        
-        for (int i = 0; i < size; i++) {
-            if (!array[i].equals(other.get(i))) {
-                return false;
-            }
-        }
-        return true;
-    }
+    // Removed unused methods: getRandom, shuffle, getRandomSample, clone, addAll, equals
     
     // === UNIVERSAL VALIDATION OPERATIONS ===
     @Override

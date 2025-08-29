@@ -62,7 +62,6 @@ public class ClinicManagementSystem {
             System.out.println("1. Consultation Management Module");
             System.out.println("2. Medical Treatment Management Module");
             System.out.println("3. Pharmacy Management Module");
-            System.out.println("4. System Overview & Analytics");
             System.out.println("0. Exit System");
             System.out.println("=".repeat(50));
             System.out.print("Select Module: ");
@@ -81,7 +80,6 @@ public class ClinicManagementSystem {
                     System.out.println("\nStarting Pharmacy Management Module...");
                     new PharmacyUI(sharedMedicineControl, sharedTreatmentControl).run();
                 }
-                case 4 -> showSystemOverview();
                 case 0 -> System.out.println("Thank you for using Clinic Management System!");
                 default -> System.out.println("Invalid choice. Please try again.");
             }
@@ -90,17 +88,5 @@ public class ClinicManagementSystem {
         scanner.close();
     }
 
-    private static void showSystemOverview() {
-       
 
-        // Show current data statistics
-        System.out.println("\nCURRENT DATA STATISTICS:");
-        System.out.println("   Consultations: " + sharedConsultationControl.getAllConsultations().size() + " records");
-        System.out.println("   Treatments: " + sharedTreatmentControl.getAllTreatments().size() + " records");
-        System.out.println("   Medicines: " + sharedMedicineControl.getAllMedicines().size() + " records");
-
-
-
-        System.out.println("\n" + "=".repeat(60));
-    }
 }

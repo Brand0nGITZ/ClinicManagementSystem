@@ -44,8 +44,7 @@ public class PharmacyUI {
             System.out.println("8. View Diagnosis-Medicine Relationships");
             System.out.println("9. Get Medicines for Diagnosis");
             System.out.println("10. Manage Diagnosis-Medicine Relationships");
-            System.out.println("11. Calculate Medicine Revenue");
-            System.out.println("12. Dispensed Medicine Summary Report");
+            System.out.println("11. Dispensed Medicine Summary Report");
             System.out.println("0. Exit");
             System.out.print("Enter choice: ");
             choice = scanner.nextInt(); scanner.nextLine();
@@ -61,8 +60,7 @@ public class PharmacyUI {
                 case 8 -> viewDiagnosisMedicineRelationships();
                 case 9 -> getMedicinesForDiagnosis();
                 case 10 -> manageDiagnosisMedicineRelationships();
-                case 11 -> calculateMedicineRevenue();
-                case 12 -> dispensedMedicineSummaryReport();
+                case 11 -> dispensedMedicineSummaryReport();
                 case 0 -> System.out.println("Exiting...");
                 default -> System.out.println("Invalid choice.");
             }
@@ -308,6 +306,39 @@ public class PharmacyUI {
         System.out.println("   Vitamins: " + vitamins);
         System.out.println("   Others: " + others);
         
+        // Total Revenue Calculation from Actual Treatments
+        System.out.println("\nTOTAL REVENUE:");
+        ListInterface<MedicalTreatment> allTreatments = treatmentControl.getAllTreatments();
+        double totalTreatmentRevenue = 0.0;
+        double totalMedicineRevenue = 0.0;
+        int paidTreatments = 0;
+        
+        for (int i = 0; i < allTreatments.size(); i++) {
+            MedicalTreatment treatment = allTreatments.get(i);
+            if ("PAID".equals(treatment.getStatus())) {
+                paidTreatments++;
+                totalTreatmentRevenue += treatment.getCost();
+                
+                // Calculate medicine revenue for this treatment
+                String diagnosis = treatment.getDiagnosis();
+                ListInterface<Medicine> treatmentMedicines = medicineControl.getMedicinesForDiagnosis(diagnosis);
+                for (int j = 0; j < treatmentMedicines.size(); j++) {
+                    Medicine med = treatmentMedicines.get(j);
+                    int quantity = calculateQuantityForMedicine(med, diagnosis);
+                    double medicineRevenue = medicineControl.calculateRevenueFromMedicine(med.getMedicineID(), quantity);
+                    totalMedicineRevenue += medicineRevenue;
+                }
+            }
+        }
+        
+        double totalRevenue = totalTreatmentRevenue + totalMedicineRevenue;
+        
+        System.out.println("   Paid Treatments: " + paidTreatments);
+        System.out.println("   Treatment Revenue: RM" + String.format("%.2f", totalTreatmentRevenue));
+        System.out.println("   Medicine Revenue: RM" + String.format("%.2f", totalMedicineRevenue));
+        System.out.println("   Total Revenue: RM" + String.format("%.2f", totalRevenue));
+        System.out.println("   (From completed and paid treatments)");
+        
         // Urgent Alerts - Medicines expiring in 2 months
         System.out.println("\nURGENT ALERTS:");
         MyArrayList<Medicine> expiringMedicines = new MyArrayList<>();
@@ -405,54 +436,7 @@ public class PharmacyUI {
         }
     }
     
-    private void calculateMedicineRevenue() {
-        System.out.println("\nCALCULATE MEDICINE REVENUE");
-        System.out.println("=".repeat(40));
-        
-        // Show all medicines with their base prices
-        ListInterface<Medicine> medicines = medicineControl.getAllMedicines();
-        if (medicines.isEmpty()) {
-            System.out.println("No medicines available.");
-            return;
-        }
-        
-        System.out.println("Available Medicines:");
-        for (int i = 0; i < medicines.size(); i++) {
-            Medicine med = medicines.get(i);
-            double basePrice = medicineControl.calculateRevenueFromMedicine(med.getMedicineID(), 1);
-            System.out.println((i + 1) + ". " + med.getName() + " (ID: " + med.getMedicineID() + ")");
-            System.out.println("   Category: " + med.getCategory() + " | Base Price: RM" + String.format("%.2f", basePrice));
-        }
-        
-        System.out.print("\nEnter Medicine ID: ");
-        String medicineId = scanner.nextLine();
-        
-        System.out.print("Enter Quantity to Sell: ");
-        int quantity = scanner.nextInt(); scanner.nextLine();
-        
-        double revenue = medicineControl.calculateRevenueFromMedicine(medicineId, quantity);
-        
-        if (revenue > 0) {
-            System.out.println("\nREVENUE CALCULATION:");
-            System.out.println("   Medicine ID: " + medicineId);
-            System.out.println("   Quantity: " + quantity);
-            System.out.println("   Total Revenue: RM" + String.format("%.2f", revenue));
-            
-            // Check if medicine exists and show details
-            Medicine medicine = medicineControl.findById(medicineId);
-            if (medicine != null) {
-                System.out.println("   Medicine: " + medicine.getName());
-                System.out.println("   Category: " + medicine.getCategory());
-                System.out.println("   Current Stock: " + medicine.getStock());
-                
-                if (quantity > medicine.getStock()) {
-                    System.out.println("   WARNING: Insufficient stock! Only " + medicine.getStock() + " available.");
-                }
-            }
-        } else {
-            System.out.println("Medicine not found or invalid quantity.");
-        }
-    }
+
     
     private void manageDiagnosisMedicineRelationships() {
         System.out.println("\n=== Manage Diagnosis-Medicine Relationships ===");
@@ -522,13 +506,82 @@ public class PharmacyUI {
                 }
             }
             case 2 -> {
-                System.out.print("Enter diagnosis: ");
-                String diagnosis = scanner.nextLine();
-                System.out.print("Enter medicine ID: ");
-                String medicineId = scanner.nextLine();
+                // Show all available diagnoses
+                ListInterface<String> allDiagnoses = medicineControl.getAllDiagnoses();
+                if (allDiagnoses.isEmpty()) {
+                    System.out.println("| No diagnoses available to remove relationships.                                                  |");
+                    System.out.println("================================================================================================================");
+                    return;
+                }
                 
-                medicineControl.removeDiagnosisMedicineRelationship(diagnosis, medicineId);
-                System.out.println("Relationship removed: " + diagnosis + " → " + medicineId);
+                System.out.println("\n=== Available Diagnoses ===");
+                System.out.println("================================================================================================================");
+                System.out.println("| Available Diagnoses:                                                                                           |");
+                System.out.println("|==============================================================================================================|");
+                for (int i = 0; i < allDiagnoses.size(); i++) {
+                    System.out.printf("| %-2d. %-60s |\n", (i + 1), allDiagnoses.get(i));
+                }
+                System.out.println("|==============================================================================================================|");
+                
+                System.out.print("Select diagnosis (1-" + allDiagnoses.size() + "): ");
+                int diagnosisChoice = scanner.nextInt(); scanner.nextLine();
+                
+                if (diagnosisChoice < 1 || diagnosisChoice > allDiagnoses.size()) {
+                    System.out.println("Invalid selection!");
+                    return;
+                }
+                
+                String diagnosis = allDiagnoses.get(diagnosisChoice - 1);
+                
+                // Show medicines for the selected diagnosis
+                ListInterface<Medicine> diagnosisMedicines = medicineControl.getMedicinesForDiagnosis(diagnosis);
+                if (diagnosisMedicines.isEmpty()) {
+                    System.out.println("| No medicines found for diagnosis: " + diagnosis + "                                               |");
+                    System.out.println("================================================================================================================");
+                    return;
+                }
+                
+                System.out.println("\n=== Medicines for " + diagnosis + " ===");
+                System.out.println("================================================================================================================");
+                System.out.println("| #  | Medicine ID | Medicine Name           | Category        | Stock | Expiry Date | Base Price |");
+                System.out.println("|==============================================================================================================|");
+                
+                for (int i = 0; i < diagnosisMedicines.size(); i++) {
+                    Medicine medicine = diagnosisMedicines.get(i);
+                    double basePrice = medicineControl.calculateRevenueFromMedicine(medicine.getMedicineID(), 1);
+                    
+                    System.out.printf("| %-2d | %-11s | %-22s | %-15s | %-5d | %-11s | RM%-8.2f |\n",
+                        (i + 1),
+                        medicine.getMedicineID(),
+                        medicine.getName(),
+                        medicine.getCategory(),
+                        medicine.getStock(),
+                        medicine.getExpiryDate(),
+                        basePrice);
+                }
+                System.out.println("|==============================================================================================================|");
+                
+                System.out.print("Select medicine to remove (1-" + diagnosisMedicines.size() + "): ");
+                int medicineChoice = scanner.nextInt(); scanner.nextLine();
+                
+                if (medicineChoice < 1 || medicineChoice > diagnosisMedicines.size()) {
+                    System.out.println("Invalid selection!");
+                    return;
+                }
+                
+                Medicine selectedMedicine = diagnosisMedicines.get(medicineChoice - 1);
+                
+                System.out.print("Are you sure you want to remove this relationship? (y/n): ");
+                String confirm = scanner.nextLine();
+                
+                if (confirm.equalsIgnoreCase("y") || confirm.equalsIgnoreCase("yes")) {
+                    medicineControl.removeDiagnosisMedicineRelationship(diagnosis, selectedMedicine.getMedicineID());
+                    System.out.println("| Relationship removed: " + diagnosis + " → " + selectedMedicine.getName() + " (" + selectedMedicine.getMedicineID() + ") |");
+                    System.out.println("================================================================================================================");
+                } else {
+                    System.out.println("| Relationship removal cancelled.                                                                              |");
+                    System.out.println("================================================================================================================");
+                }
             }
             case 3 -> {
                 viewDiagnosisMedicineRelationships();
